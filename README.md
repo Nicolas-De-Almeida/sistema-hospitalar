@@ -15,7 +15,7 @@ O sistema será desenvolvido utilizando conceitos de Programação Orientada a O
 ## 👥 Alunos Integrantes
 
 - Nicolas De Almeida
-- 
+- Diogo Gouvêa Bastos Braga
 - 
 - 
 
