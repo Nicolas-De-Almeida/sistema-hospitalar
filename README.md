@@ -121,6 +121,14 @@ O sistema deverá permitir consultar o histórico de um paciente contendo:
 
 ---
 
+## 📊 Diagrama de Classes
+
+Abaixo encontra-se o diagrama de classes UML com a modelação estrutural do sistema:
+
+![Diagrama de Classes UML](assets/uml-classes-hospital-FINAL-v2_2.png)
+
+---
+
 ## Cartões CRC
 
 Os cartões CRC (Classe – Responsabilidade – Colaboração) mostram, de forma simples, o que cada classe do sistema faz e com quais outras classes ela precisa trabalhar.
