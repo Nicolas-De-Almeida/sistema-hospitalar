@@ -16,7 +16,7 @@ O sistema será desenvolvido utilizando conceitos de Programação Orientada a O
 
 - Nicolas De Almeida
 - Diogo Gouvêa Bastos Braga
-- 
+- Rafael Galileu Thales Oliveira
 - 
 
 ## 🌐 Tecnologias
@@ -120,6 +120,51 @@ O sistema deverá permitir consultar o histórico de um paciente contendo:
 - Informações relevantes registradas durante os atendimentos
 
 ---
+
+## Cartões CRC
+
+Os cartões CRC (Classe – Responsabilidade – Colaboração) mostram, de forma simples, o que cada classe do sistema faz e com quais outras classes ela precisa trabalhar.
+
+## Caso de Uso: Gerenciar Pacientes
+
+### Paciente
+
+| Responsabilidades | Colaborações |
+|---|---|
+| 1. Conhecer seu nome<br>2. Conhecer seu CPF<br>3. Conhecer sua data de nascimento<br>4. Conhecer seu telefone<br>5. Conhecer seu endereço<br>6. Conhecer seu e-mail de contato<br>7. Conhecer suas consultas<br>8. Conhecer suas internações<br>9. Conhecer seu histórico médico | Consulta<br>Internação<br>Histórico Médico |
+
+## Caso de Uso: Gerenciar Profissionais da Saúde
+
+### Profissional da Saúde
+
+| Responsabilidades | Colaborações |
+|---|---|
+| 1. Conhecer seu nome<br>2. Conhecer seu registro profissional<br>3. Conhecer sua especialidade<br>4. Conhecer seu telefone<br>5. Conhecer seu e-mail de contato<br>6. Conhecer suas consultas agendadas<br>7. Conhecer as internações sob sua responsabilidade<br>8. Verificar se está disponível em um horário | Consulta<br>Internação |
+
+## Caso de Uso: Agendar Consulta
+
+### Consulta
+
+| Responsabilidades | Colaborações |
+|---|---|
+| 1. Conhecer seu paciente<br>2. Conhecer seu profissional responsável<br>3. Conhecer sua data<br>4. Conhecer seu horário<br>5. Conhecer o motivo da consulta<br>6. Conhecer suas observações médicas<br>7. Registrar observações médicas<br>8. Verificar se o profissional está disponível no horário | Paciente<br>Profissional da Saúde |
+
+## Caso de Uso: Controlar Internação
+
+### Internação
+
+| Responsabilidades | Colaborações |
+|---|---|
+| 1. Conhecer seu paciente<br>2. Conhecer seu profissional responsável<br>3. Conhecer seu quarto<br>4. Conhecer sua data de entrada<br>5. Conhecer sua data prevista de alta<br>6. Conhecer sua data efetiva de alta<br>7. Conhecer suas observações<br>8. Verificar se o quarto tem vaga antes de internar<br>9. Registrar a alta do paciente | Paciente<br>Profissional da Saúde<br>Quarto |
+
+### Quarto
+
+| Responsabilidades | Colaborações |
+|---|---|
+| 1. Conhecer seu número de identificação<br>2. Conhecer seu andar<br>3. Conhecer sua capacidade máxima de pacientes<br>4. Conhecer sua situação atual (disponível ou ocupado)<br>5. Conhecer a quantidade de pacientes internados nele<br>6. Verificar se há vaga disponível<br>7. Atualizar sua situação conforme a ocupação | Internação |
+
+---
+
 
 ## 🚦 Status
 
