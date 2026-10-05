@@ -171,6 +171,15 @@ Os cartões CRC (Classe – Responsabilidade – Colaboração) mostram, de form
 |---|---|
 | 1. Conhecer seu número de identificação<br>2. Conhecer seu andar<br>3. Conhecer sua capacidade máxima de pacientes<br>4. Conhecer sua situação atual (disponível ou ocupado)<br>5. Conhecer a quantidade de pacientes internados nele<br>6. Verificar se há vaga disponível<br>7. Atualizar sua situação conforme a ocupação | Internação |
 
+
+## Caso de Uso: Consultar Histórico Médico
+
+### Histórico Médico
+
+| Responsabilidades | Colaborações |
+|---|---|
+| 1. Conhecer seu paciente<br>2. Conhecer as consultas realizadas do paciente<br>3. Conhecer as internações realizadas do paciente<br>4. Conhecer as informações relevantes registradas nos atendimentos<br>5. Fornecer o histórico completo do paciente | Paciente<br>Consulta<br>Internação |
+
 ---
 
 
