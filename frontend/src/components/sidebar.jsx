@@ -17,6 +17,8 @@ export default function SideBar() {
             <div className="text-slate-400 font-bold p-5">
                 <h1>MENU</h1>
                 <h1>PRINCIPAL</h1>
+
+                {/*Links de navegação para as outras páginas*/}
                 <div className="flex flex-col gap-2 mt-4">
                     <div className="flex items-center gap-3 px-4 py-2 hover:bg-cyan-800 hover:text-white rounded-lg transition-colors">
                         <Home/>
@@ -44,7 +46,6 @@ export default function SideBar() {
                     </div>
                     
                 </div>
-
             </div>
             <div className="flex gap-2 items-center mt-auto p-5 border-t border-cyan-900">
                 <Hospital></Hospital>
