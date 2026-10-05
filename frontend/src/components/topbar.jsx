@@ -25,7 +25,7 @@ export default function TopBar() {
     const paginaAtual = paginas[location.pathname] || 'PAINEL PRINCIPAL';
 
     return (
-        <header className="flex items-center justify-between p-4 border-b border-slate-100 bg-white gap-2">
+        <header className="flex items-center justify-between p-4 h-15 border-b border-slate-100 bg-white gap-2">
 
             {/* Título da páginas */}
             <div className="shrink-0">
@@ -38,7 +38,7 @@ export default function TopBar() {
                 
                 {/* Barra de pesquisa */}
                 <div className="pr-3 sm:pr-6 border-r border-slate-200">
-                    <div className="flex items-center gap-2 bg-slate-100 rounded-xl w-32 sm:w-60 md:w-80 h-10 px-3 border border-slate-200 focus-within:border-cyan-800 transition-all">
+                    <div className="flex items-center gap-2 bg-slate-100 rounded-xl w-32 sm:w-60 md:w-80 h-10 p-3 border border-slate-200 focus-within:border-cyan-800 transition-all">
                         <Search className="w-4 h-4 text-slate-400 shrink-0" />
                         <input 
                             className="w-full bg-transparent focus:outline-none text-sm text-slate-600 placeholder:text-slate-400" 
