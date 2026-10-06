@@ -1,6 +1,7 @@
 import { X } from 'lucide-react'
 
-export default function ModalNovoProfissional({ onClose }) {
+export default function ModalNovoProfissional({ isOpen, onClose }) {
+    if (!isOpen) return null
 
     return (
         <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">
@@ -12,7 +13,7 @@ export default function ModalNovoProfissional({ onClose }) {
                         <h2 className="text-xs font-bold tracking-widest text-cyan-800 uppercase">NOVO PROFISSIONAL</h2>
                         <p className="text-xs text-slate-400 mt-0.5">Preencha as informações para iniciar o cadastro.</p>
                     </div>
-                    <button onClick={onClose}className="text-slate-400 hover:text-slate-600 transition-colors cursor-pointer p-1">
+                    <button onClick={onClose} className="text-slate-400 hover:text-slate-600 transition-colors cursor-pointer p-1">
                         <X className="w-5 h-5" />
                     </button>
                 </div>
@@ -59,7 +60,7 @@ export default function ModalNovoProfissional({ onClose }) {
                 </div>
 
                 <div className="p-5 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
-                    <button onClick={onClose}className="px-5 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer">Cancelar</button>
+                    <button onClick={onClose} className="px-5 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer">Cancelar</button>
                     <button className="px-5 py-2.5 text-sm font-semibold text-white bg-teal-700 rounded-lg hover:bg-teal-800 shadow-sm transition-colors cursor-pointer">Salvar</button>
                 </div>
             </div>

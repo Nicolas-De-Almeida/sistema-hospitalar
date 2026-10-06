@@ -1,6 +1,7 @@
 import { X } from 'lucide-react'
 
-export default function ModalNovoProfissional({ onClose }) {
+export default function ModalNovoProfissional({ isOpen, onClose }) {
+    if (!isOpen) return null
 
     return (
         <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center z-50 p-4">

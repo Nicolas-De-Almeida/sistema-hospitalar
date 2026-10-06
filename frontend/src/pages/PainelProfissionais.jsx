@@ -1,9 +1,17 @@
 import { Search, Plus, Clock, Pencil, ToggleRight } from 'lucide-react'
+import { useState } from 'react'
+
 
 import profissionaisDataTeste from '../data/profissionaisDataTeste.json'
-import { getIniciais } from '../utils/primeiraLetraMaiuscula';
+import { getIniciais } from '../utils/primeiraLetraMaiuscula'
+
+import ModalNovoProfissional from '../components/modals/ModalNovoProfissional'
+import ModalEditarProfissionais from '../components/modals/ModalEditarProfissionais'
 
 export default function PainelProfissionais() {
+    const [modalNovoProfissional, setModalNovoProfissional] = useState(false)
+    const [modalEditarProfissionais, setModalEditarProfissionais] = useState(false)
+
     return (
         <div>
             <div className="flex items-center justify-between mb-6">
@@ -11,7 +19,7 @@ export default function PainelProfissionais() {
                     <span className="font-bold tracking-wider text-cyan-800 uppercase">EQUIPE DE PROFISSIONAIS</span>
                 </div>
 
-                <button className="flex items-center gap-2 bg-teal-800 hover:bg-teal-900 text-white font-semibold text-sm px-4 py-2.5 rounded-xl shadow-sm transition-colors cursor-pointer">
+                <button onClick={() => setModalNovoProfissional(true)} className="flex items-center gap-2 bg-teal-800 hover:bg-teal-900 text-white font-semibold text-sm px-4 py-2.5 rounded-xl shadow-sm transition-colors cursor-pointer">
                     <Plus className="w-4 h-4" />
                     <span>Novo profissional</span>
                 </button>
@@ -83,7 +91,7 @@ export default function PainelProfissionais() {
                                             <button className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Horários de Atendimento">
                                                 <Clock className="w-4 h-4" />
                                             </button>
-                                            <button className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Editar">
+                                            <button onClick={() => setModalNovoProfissional(true)} className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Editar">
                                                 <Pencil className="w-4 h-4" />
                                             </button>
                                             <button className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Alterar Status">
@@ -96,8 +104,9 @@ export default function PainelProfissionais() {
                         </tbody>
                     </table>
                 </div>
-
+            <ModalNovoProfissional isOpen={modalNovoProfissional} onClose={() => setModalNovoProfissional(false)}/>
+            <ModalEditarProfissionais isOpen={modalEditarProfissionais} onClose={() => setModalEditarProfissionais(false)}/>
             </div>
         </div>
-    );
+    )
 }
