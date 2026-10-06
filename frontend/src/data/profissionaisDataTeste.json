@@ -1,0 +1,65 @@
+[
+  {
+    "id": 1,
+    "nome": "Dr. Carlos Lima",
+    "registro": "CRM-MG 12345",
+    "especialidade": "Clínico geral",
+    "telefone": "(31) 98821-4506",
+    "email": "carlos.lima@hospital.com",
+    "status": "Ativo"
+  },
+  {
+    "id": 2,
+    "nome": "Dra. Ana Costa",
+    "registro": "CRM-MG 28741",
+    "especialidade": "Cardiologia",
+    "telefone": "(31) 99118-7632",
+    "email": "ana.costa@hospital.com",
+    "status": "Ativo"
+  },
+  {
+    "id": 3,
+    "nome": "Dra. Beatriz Rocha",
+    "registro": "CRM-MG 31892",
+    "especialidade": "Pediatria",
+    "telefone": "(31) 98436-1290",
+    "email": "beatriz.rocha@hospital.com",
+    "status": "Ativo"
+  },
+  {
+    "id": 4,
+    "nome": "Dr. Pedro Martins",
+    "registro": "CRM-MG 20456",
+    "especialidade": "Ortopedia",
+    "telefone": "(31) 99702-8841",
+    "email": "pedro.martins@hospital.com",
+    "status": "Ativo"
+  },
+  {
+    "id": 5,
+    "nome": "Dra. Luiza Moreira",
+    "registro": "CRM-MG 35678",
+    "especialidade": "Clínico geral",
+    "telefone": "(31) 98645-3077",
+    "email": "luiza.moreira@hospital.com",
+    "status": "Inativo"
+  },
+  {
+    "id": 6,
+    "nome": "Dr. Rafael Nunes",
+    "registro": "CRM-MG 26903",
+    "especialidade": "Cardiologia",
+    "telefone": "(31) 99277-5104",
+    "email": "rafael.nunes@hospital.com",
+    "status": "Ativo"
+  },
+  {
+    "id": 7,
+    "nome": "Dra. Helena Duarte",
+    "registro": "CRM-MG 40217",
+    "especialidade": "Outra",
+    "telefone": "(31) 98310-6729",
+    "email": "helena.duarte@hospital.com",
+    "status": "Inativo"
+  }
+]

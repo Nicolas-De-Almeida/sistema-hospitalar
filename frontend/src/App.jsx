@@ -1,7 +1,8 @@
-import PainelPacientes from './pages/PainelPacientes';
 
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import Layout from './components/Layout';
+import PainelProfissionais from './pages/PainelProfissionais'
+
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import Layout from './components/Layout'
 
 export default function App() {
   return (
@@ -9,7 +10,8 @@ export default function App() {
     <BrowserRouter>
       <Layout>
         <Routes>
-          <Route path="/" element={<PainelPacientes/>} />
+
+          <Route path="/" element={<PainelProfissionais/>} />
         </Routes>
       </Layout>
     </BrowserRouter>
