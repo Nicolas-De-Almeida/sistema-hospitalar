@@ -1,4 +1,4 @@
-import PainelPrincipal from './pages/PainelPrincipal';
+import PainelPacientes from './pages/PainelPacientes';
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
@@ -9,8 +9,7 @@ export default function App() {
     <BrowserRouter>
       <Layout>
         <Routes>
-          <Route path="/" element={<PainelPrincipal/>} />
-          <Route path="/pacientes" element={<h1>Pacientes</h1>} />
+          <Route path="/" element={<PainelPacientes/>} />
         </Routes>
       </Layout>
     </BrowserRouter>

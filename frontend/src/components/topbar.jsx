@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { useState } from 'react';
 import { Search } from 'lucide-react';
-import { getIniciais } from '../utils/primeriaLetraMaiuscula'
+import { getIniciais } from '../utils/primeiraLetraMaiuscula'
 
 export default function TopBar() {
     const usuarioLogado = {

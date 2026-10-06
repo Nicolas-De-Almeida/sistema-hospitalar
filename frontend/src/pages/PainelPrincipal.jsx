@@ -2,7 +2,7 @@ import { CalendarDays, Bed, DoorOpen, ArrowBigRight, UserPlus, CalendarPlus, Plu
 import { PegarDataCalendario } from '../utils/Calendario'
 import { useState } from 'react';
 
-import CardsTeste from '../data/cardsTeste.json'
+import CardsTeste from '../data/CardsTeste.json'
 import ModalNovoPaciente from '../components/modals/ModalNovoPaciente'
 import ModalAgendarConsulta from '../components/modals/ModalAgendarConsulta'
 import ModalNovaInternacao from '../components/modals/ModalNovaInternacao'
