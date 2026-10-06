@@ -108,7 +108,7 @@ export default function ModalNovoPaciente({ isOpen, onClose }) {
 
                     <div className="flex items-center justify-between p-4 bg-slate-50 border-t border-slate-100">
                         <button type="button"onClick={onClose}className="px-4 py-2 border border-slate-200 rounded-xl text-slate-600 hover:bg-white text-sm font-semibold transition-colors cursor-pointer">Cancelar</button>
-                        <button type="submit"className="px-5 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-sm font-semibold transition-colors cursor-pointer shadow-sm">Salvar</button>
+                        <button type="submit"className="px-5 py-2 bg-cyan-800 hover:bg-cyan-950 text-white rounded-xl text-sm font-semibold transition-colors cursor-pointer shadow-sm">Salvar</button>
                     </div>
                 </form>
             </div>

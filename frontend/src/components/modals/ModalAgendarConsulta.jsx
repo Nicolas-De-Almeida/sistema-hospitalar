@@ -47,7 +47,7 @@ export default function ModalAgendarConsulta({ isOpen, onClose }) {
                         <button type="button" onClick={onClose} className="px-4 py-2 border border-slate-200 rounded-xl text-slate-600 hover:bg-slate-50 text-sm font-semibold transition-colors cursor-pointer">
                             Cancelar
                         </button>
-                        <button type="submit" className="px-5 py-2 bg-teal-800 hover:bg-teal-900 text-white rounded-xl text-sm font-semibold transition-colors cursor-pointer shadow-sm">Continuar</button>
+                        <button type="submit" className="px-5 py-2 bg-cyan-800 hover:bg-cyan-950 text-white rounded-xl text-sm font-semibold transition-colors cursor-pointer shadow-sm">Confirmar</button>
                     </div>
                 </form>
             </div>
