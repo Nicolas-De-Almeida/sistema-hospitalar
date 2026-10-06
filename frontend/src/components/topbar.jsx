@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { useState } from 'react';
 import { Search } from 'lucide-react';
+import { getIniciais } from '../utils/primeriaLetraMaiuscula'
 
 export default function TopBar() {
     const usuarioLogado = {
@@ -68,10 +69,3 @@ export default function TopBar() {
     );
 }
 
-{/*Permite pegar a primeira letra do nome e sobrenome do usuário logado para usar como "foto" de perfil*/}
-function getIniciais(nomeCompleto) {
-  if (!nomeCompleto) return '';
-  const nomes = nomeCompleto.trim().split(' ');
-  if (nomes.length === 1) return nomes[0][0].toUpperCase();
-  return (nomes[0][0] + nomes[nomes.length - 1][0]).toUpperCase();
-}

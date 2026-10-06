@@ -1,5 +1,5 @@
-import SideBar from './sidebar'
-import TopBar from './topbar'
+import SideBar from './SideBar'
+import TopBar from './TopBar'
 
 
 
@@ -9,7 +9,7 @@ export default function Layout({children}) {
             <SideBar/>
             <div className="flex flex-col flex-1">
                 <TopBar/>
-                <main className="flex-1 overflow-auto p-6">
+                <main className="flex-1 overflow-auto p-6 bg-zinc-50">
                     {children}
                 </main>
             </div>

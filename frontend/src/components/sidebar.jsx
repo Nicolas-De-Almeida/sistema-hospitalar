@@ -1,5 +1,5 @@
 
-import LogoHospital from '../assets/img/logoHospital.png'
+import LogoHospital from '../assets/img/logo-hospital.png'
 import { Link } from 'react-router-dom';
 import { Home, Users, Stethoscope, Calendar, Bed, LayoutGrid, Hospital } from 'lucide-react';
 
