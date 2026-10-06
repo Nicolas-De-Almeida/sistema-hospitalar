@@ -1,4 +1,3 @@
-import React from 'react';
 import { X, Calendar } from 'lucide-react';
 
 export default function ModalAgendarConsulta({ isOpen, onClose }) {
