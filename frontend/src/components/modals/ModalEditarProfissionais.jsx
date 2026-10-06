@@ -9,8 +9,8 @@ export default function ModalNovoProfissional({ onClose }) {
                 
                 <div className="flex items-start justify-between p-6 border-b border-slate-100">
                     <div>
-                        <h2 className="text-xs font-bold tracking-widest text-cyan-800 uppercase">NOVO PROFISSIONAL</h2>
-                        <p className="text-xs text-slate-400 mt-0.5">Preencha as informações para iniciar o cadastro.</p>
+                        <h2 className="text-xs font-bold tracking-widest text-cyan-800 uppercase">EDITAR PROFISSIONAL</h2>
+                        <p className="text-xs text-slate-400 mt-0.5">Modifique as informações para salvar as mudanças.</p>
                     </div>
                     <button onClick={onClose}className="text-slate-400 hover:text-slate-600 transition-colors cursor-pointer p-1">
                         <X className="w-5 h-5" />
