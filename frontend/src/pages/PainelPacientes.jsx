@@ -1,11 +1,23 @@
 import { Search, Plus, FileText, Calendar, Bed, Pencil, Trash2 } from 'lucide-react'
+import { useState } from 'react'
 
+import ModalNovoPaciente from '../components/modals/ModalNovoPaciente'
+import ModalAgendarConsulta from '../components/modals/ModalAgendarConsulta'
+import ModalNovaInternacao from '../components/modals/ModalNovaInternacao'
+import ModalEditarPacientes from '../components/modals/ModalEditarPacientes'
+import ModalConfirmarExclusao from '../components/modals/ModalConfirmarExclusao'
 import pacientesDataTeste from '../data/CardsTeste.json'
+
 import { getIniciais } from '../utils/primeiraLetraMaiuscula'
 
 
 
 export default function PainelPacientes() {
+    const [modalNovoPaciente, setModalNovoPaciente] = useState(false)
+    const [modalAgendarConsulta, setModalAgendarConsulta] = useState(false)
+    const [modalNovaInternacao, setModalNovaInternacao] = useState(false)
+    const [modalEditarPaciente, setModalEditarPaciente] = useState(false)
+    const [modalConfirmarExclusao, setModalConfirmarExclusao] = useState(false)
 
     return (
         <div>
@@ -14,7 +26,7 @@ export default function PainelPacientes() {
                     <span className="font-bold tracking-wider text-cyan-800 uppercase">GESTÃO DE CADASTROS</span>
                 </div>
 
-                <button className="flex items-center gap-2 bg-cyan-800 hover:bg-cyan-950 text-white font-semibold text-sm px-4 py-2.5 rounded-xl shadow-sm transition-colors cursor-pointer">
+                <button onClick={() => setModalNovoPaciente(true)} className="flex items-center gap-2 bg-cyan-800 hover:bg-cyan-950 text-white font-semibold text-sm px-4 py-2.5 rounded-xl shadow-sm transition-colors cursor-pointer">
                     <Plus className="w-4 h-4" />
                     <span>Novo paciente</span>
                 </button>
@@ -69,17 +81,17 @@ export default function PainelPacientes() {
                                             <button className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Prontuário">
                                                 <FileText className="w-4 h-4"/>
                                             </button>
-                                            <button className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Agendar Consulta">
+                                            <button onClick={() => setModalAgendarConsulta(true)} className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Agendar Consulta">
                                                 <Calendar className="w-4 h-4"/>
                                             </button>
-                                            <button className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Nova Internação">
+                                            <button onClick={() => setModalNovaInternacao(true)} className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Nova Internação">
                                                 <Bed className="w-4 h-4"/>
                                             </button>
                                             <span className="text-slate-200">|</span>
-                                            <button className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Editar">
+                                            <button onClick={() => setModalEditarPaciente(true)} className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Editar">
                                                 <Pencil className="w-4 h-4"/>
                                             </button>
-                                            <button className="hover:text-red-600 p-1 transition-colors cursor-pointer" title="Excluir">
+                                            <button onClick={() => setModalConfirmarExclusao(true)} className="hover:text-red-600 p-1 transition-colors cursor-pointer" title="Excluir">
                                                 <Trash2 className="w-4 h-4"/>
                                             </button>
                                         </div>
@@ -89,9 +101,17 @@ export default function PainelPacientes() {
                         </tbody>
                     </table>
                 </div>
-
             </div>
+            <ModalNovoPaciente isOpen={modalNovoPaciente} onClose={() => setModalNovoPaciente(false)} />
 
+            <ModalAgendarConsulta isOpen={modalAgendarConsulta} onClose={() => setModalAgendarConsulta(false)} />
+
+            <ModalNovaInternacao isOpen={modalNovaInternacao} onClose={() => setModalNovaInternacao(false)} />
+
+            <ModalEditarPacientes isOpen={modalEditarPaciente} onClose={() => setModalEditarPaciente(false)} />
+
+            <ModalConfirmarExclusao isOpen={modalConfirmarExclusao} onClose={() => setModalConfirmarExclusao(false)} />
         </div>
-    );
+
+    )
 }

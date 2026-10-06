@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { X } from 'lucide-react'
 
 export default function ModalNovoPaciente({ isOpen, onClose }) {
     if (!isOpen) return null;
@@ -8,8 +8,7 @@ export default function ModalNovoPaciente({ isOpen, onClose }) {
             <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
                 <div className="flex items-start justify-between p-6 border-b border-slate-100">
                     <div>
-                        <span className="text-xs font-bold tracking-wider text-teal-700 uppercase">NOVO CADASTRO</span>
-                        <h2 className="text-xl font-bold text-slate-800 mt-0.5">Novo paciente</h2>
+                        <h2 className="text-xl text-cyan-800 font-bold text-slate-800 mt-0.5">Novo paciente</h2>
                         <p className="text-xs text-slate-400 mt-0.5">Preencha as informações para iniciar o cadastro.</p>
                     </div>
                     <button onClick={onClose} className="text-slate-400 hover:text-slate-600 p-1 rounded-lg transition-colors cursor-pointer">
@@ -113,5 +112,5 @@ export default function ModalNovoPaciente({ isOpen, onClose }) {
                 </form>
             </div>
         </div>
-    );
+    )
 }
