@@ -37,7 +37,6 @@ export default function GestaoInternacoes() {
             <div className="flex items-center justify-between mb-8 shrink-0">
                 <div>
                     <span className="font-bold tracking-wider text-cyan-800 uppercase text-xs">GESTÃO DE INTERNAÇÕES</span>
-                    <p className="text-sm text-slate-500 mt-0.5">Controle de internações e altas</p>
                 </div>
 
                 <button 

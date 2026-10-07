@@ -1,5 +1,6 @@
 
-import PainelInternacoes from './pages/PainelInternacoes'
+import PainelQuartos from './pages/PainelQuartos'
+
 
 
 
@@ -13,7 +14,8 @@ export default function App() {
       <Layout>
         <Routes>
 
-          <Route path="/" element={<PainelInternacoes/>} />
+          <Route path="/" element={<PainelQuartos/>} />
+
 
         </Routes>
       </Layout>
