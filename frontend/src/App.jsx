@@ -1,5 +1,6 @@
 
-import PainelConsultas from './pages/PainelConsultas'
+import PainelInternacoes from './pages/PainelInternacoes'
+
 
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
@@ -11,7 +12,9 @@ export default function App() {
     <BrowserRouter>
       <Layout>
         <Routes>
-          <Route path="/" element={<PainelConsultas/>} />
+
+          <Route path="/" element={<PainelInternacoes/>} />
+
         </Routes>
       </Layout>
     </BrowserRouter>

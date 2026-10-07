@@ -9,6 +9,8 @@ const getIniciais = (nome) => {
 
 export default function GestaoConsultas() {
     const [modalNovaConsulta, setModalNovaConsulta] = useState(false);
+
+    // Estado inicial vazio aguardando fazermos o Backend
     const [consultas, setConsultas] = useState([]);
 
     const renderStatusBadge = (status) => {
@@ -107,9 +109,7 @@ export default function GestaoConsultas() {
                 </div>
             </div>
 
-            {modalNovaConsulta && (
-                <ModalAgendarConsulta isOpen={modalNovaConsulta} onClose={() => setModalNovaConsulta(false)} />
-            )}
+            <ModalAgendarConsulta isOpen={modalNovaConsulta} onClose={() => setModalNovaConsulta(false)} />
         </div>
     )
 }
