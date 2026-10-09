@@ -17,13 +17,16 @@ O sistema será desenvolvido utilizando conceitos de Programação Orientada a O
 - Nicolas De Almeida
 - Diogo Gouvêa Bastos Braga
 - Rafael Galileu Thales Oliveira
-- 
+- Matheus Balsamão
 
 ## 🌐 Tecnologias
 
 - Java
 - HTML
 - CSS
+- JavaScript
+- Tailwind
+- React
 - Spring Boot
 - Spring Data JPA
 - MySQL
