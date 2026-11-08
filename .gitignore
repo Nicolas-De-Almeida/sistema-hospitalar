@@ -1,0 +1,18 @@
+# Maven (arquivos gerados ao compilar)
+target/
+
+# Editores
+.vscode/
+.idea/
+*.iml
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Mac
+.DS_Store
+
+# Segredos
+.env
