@@ -7,4 +7,10 @@ export default defineConfig({
     react(), 
     tailwindcss()
   ],
+  server: {
+    // Tudo que o front pedir em /api é repassado para o Spring Boot (porta 8080)
+    proxy: {
+      '/api': 'http://localhost:8080',
+    },
+  },
 })

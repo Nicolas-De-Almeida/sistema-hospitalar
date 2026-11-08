@@ -1,14 +1,18 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from 'react';
-import { Search } from 'lucide-react';
+import { Search, LogOut } from 'lucide-react';
 import { getIniciais } from '../utils/primeiraLetraMaiuscula'
+import { getUsuarioLogado, logout } from '../services/authService'
 
 export default function TopBar() {
-    const usuarioLogado = {
-        nome: "Cleitin Santana",
-        funcao: "Administrador"
-    };
+    const usuarioLogado = getUsuarioLogado() ?? { nome: "", funcao: "" };
     const iniciais = getIniciais(usuarioLogado.nome);
+    const navigate = useNavigate();
+
+    const sair = () => {
+        logout();
+        navigate('/login', { replace: true });
+    };
 
     const [busca, setBusca] = useState('');
     const location = useLocation();
@@ -62,6 +66,11 @@ export default function TopBar() {
                         <p className="font-bold text-slate-800 leading-none">{usuarioLogado.nome}</p>
                         <p className="text-xs text-slate-500 leading-none mt-1">{usuarioLogado.funcao}</p>
                     </div>
+
+                    {/* Botão de sair */}
+                    <button onClick={sair} title="Sair" aria-label="Sair" className="text-slate-400 hover:text-cyan-800 p-1 rounded-lg transition-colors cursor-pointer">
+                        <LogOut className="w-5 h-5" />
+                    </button>
                 </div>
 
             </div>
