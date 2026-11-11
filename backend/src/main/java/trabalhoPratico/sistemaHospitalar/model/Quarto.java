@@ -81,6 +81,22 @@ public class Quarto {
         }
     }
 
+    // Atualiza os dados dependentes de forma atômica, validando a combinação final
+    // de tipo e capacidade antes de alterar a entidade.
+    public void atualizarCaracteristicas(String numero, int andar, int capacidadeMaxima, TipoQuarto tipo) {
+        String novoNumero = exigirTexto(numero, "número do quarto");
+        TipoQuarto novoTipo = exigir(tipo, "tipo do quarto");
+        validarCapacidade(capacidadeMaxima, novoTipo);
+        if (capacidadeMaxima < ocupacaoAtual()) {
+            throw new RegraDeNegocioException("O quarto tem " + ocupacaoAtual()
+                    + " paciente(s) internado(s); a capacidade não pode ser menor que isso.");
+        }
+        this.numero = novoNumero;
+        this.andar = andar;
+        this.capacidadeMaxima = capacidadeMaxima;
+        this.tipo = novoTipo;
+    }
+
     // ---------- Getters e Setters ----------
 
     public Long getId() {

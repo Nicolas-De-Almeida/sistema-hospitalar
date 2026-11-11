@@ -2,6 +2,7 @@ package trabalhoPratico.sistemaHospitalar.model;
 
 import static trabalhoPratico.sistemaHospitalar.util.Validacao.exigir;
 
+import java.time.Duration;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -59,7 +60,7 @@ public class DisponibilidadeAtendimento {
     public boolean cobre(LocalDate data, LocalTime hora) {
         return data.getDayOfWeek() == diaSemana
                 && !hora.isBefore(horaInicio)
-                && hora.isBefore(horaFim);
+                && Duration.between(hora, horaFim).toMinutes() >= duracaoConsultaMin;
     }
 
     // Dois expedientes do mesmo dia não podem se sobrepor

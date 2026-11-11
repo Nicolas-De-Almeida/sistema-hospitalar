@@ -24,6 +24,17 @@ public class GlobalExceptionHandler {
                 .orElse("Dados inválidos.");
         return ResponseEntity.badRequest().body(new ErroResponse(mensagem));
     }
+
+    @ExceptionHandler(RecursoNaoEncontradoException.class)
+    public ResponseEntity<ErroResponse> tratarRecursoNaoEncontrado(RecursoNaoEncontradoException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErroResponse(ex.getMessage()));
+    }
+
+    @ExceptionHandler(ConflitoException.class)
+    public ResponseEntity<ErroResponse> tratarConflito(ConflitoException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ErroResponse(ex.getMessage()));
+    }
+
     @ExceptionHandler(RegraDeNegocioException.class)
     public ResponseEntity<ErroResponse> tratarRegraDeNegocio(RegraDeNegocioException ex) {
         return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body(new ErroResponse(ex.getMessage()));
