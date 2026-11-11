@@ -128,7 +128,7 @@ O sistema deverá permitir consultar o histórico de um paciente contendo:
 
 Abaixo encontra-se o diagrama de classes UML com a modelação estrutural do sistema:
 
-![Diagrama de Classes UML](assets/uml-classes-hospital-FINAL-v2.png)
+![Diagrama de Classes UML](assets/uml-classes-hospital-FINAL-v2.png.PNG)
 
 ---
 
