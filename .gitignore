@@ -16,8 +16,3 @@ target/
 
 # Segredos
 .env
-.DS_Store
-target/
-
-.DS_Store
-target/
