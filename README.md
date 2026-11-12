@@ -128,7 +128,15 @@ O sistema deverá permitir consultar o histórico de um paciente contendo:
 
 Abaixo encontra-se o diagrama de classes UML com a modelação estrutural do sistema:
 
+### Diagrama original — Sprint 1
+
 ![Diagrama de Classes UML](assets/uml-classes-hospital-FINAL-v2.png.PNG)
+
+### Diagrama atualizado — Sprint 2
+
+[Visualizar o Diagrama de Classes atualizado da Sprint 2](docs/DIAGRAMA-CLASSES-SPRINT-2.md)
+
+O diagrama da Sprint 2 é mantido em Mermaid, permitindo sua visualização diretamente no GitHub e sua atualização junto ao código-fonte.
 
 ---
 
