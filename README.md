@@ -18,6 +18,7 @@ O sistema será desenvolvido utilizando conceitos de Programação Orientada a O
 - Diogo Gouvêa Bastos Braga
 - Rafael Galileu Thales Oliveira
 - Matheus Balsamão
+- Matheus Nicoli Andrade Coelho
 
 ## 🌐 Tecnologias
 
