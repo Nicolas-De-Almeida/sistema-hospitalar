@@ -1,0 +1,26 @@
+// Uma função por tela/lista. Cada uma só chama o endpoint certo do back end.
+
+import { api } from './api'
+
+export const listarPacientes = () => api('/pacientes')
+export const listarProfissionais = () => api('/profissionais')
+export const listarConsultas = () => api('/consultas')
+export const listarInternacoes = () => api('/internacoes')
+export const listarQuartos = () => api('/quartos')
+
+
+// Ações (mudam o estado de algo que já existe)
+const patch = (caminho, corpo) => api(caminho, { method: 'PATCH', body: JSON.stringify(corpo ?? {}) })
+
+// Consultas
+export const confirmarConsulta = (id) => patch(`/consultas/${id}/confirmar`)
+export const iniciarConsulta = (id) => patch(`/consultas/${id}/iniciar`)
+export const concluirConsulta = (id, observacoes) => patch(`/consultas/${id}/concluir`, { observacoes })
+export const cancelarConsulta = (id) => patch(`/consultas/${id}/cancelar`)
+export const registrarFaltaConsulta = (id) => patch(`/consultas/${id}/falta`)
+
+// Internações
+export const darAltaInternacao = (id, dataAlta) => patch(`/internacoes/${id}/alta`, { dataAlta })
+
+// Profissionais
+export const alterarStatusProfissional = (id, ativo) => patch(`/profissionais/${id}/status`, { ativo })
