@@ -21,7 +21,7 @@ export default function PainelPacientes() {
     const [modalEditarPaciente, setModalEditarPaciente] = useState(false)
     const [modalConfirmarExclusao, setModalConfirmarExclusao] = useState(false)
 
-    const { dados: pacientes, carregando, erro } = useDados(listarPacientes)
+    const { dados: pacientes, carregando, erro, recarregar } = useDados(listarPacientes)
 
     // Texto digitado na busca (nome ou CPF)
     const [busca, setBusca] = useState('')
@@ -127,15 +127,15 @@ export default function PainelPacientes() {
                     </table>
                 </div>
             </div>
-            <ModalNovoPaciente isOpen={modalNovoPaciente} onClose={() => setModalNovoPaciente(false)} />
+            <ModalNovoPaciente isOpen={modalNovoPaciente} onClose={() => setModalNovoPaciente(false)} onSalvo={recarregar}/>
 
-            <ModalAgendarConsulta isOpen={modalAgendarConsulta} onClose={() => setModalAgendarConsulta(false)} />
+            <ModalAgendarConsulta isOpen={modalAgendarConsulta} onClose={() => setModalAgendarConsulta(false)}/>
 
-            <ModalNovaInternacao isOpen={modalNovaInternacao} onClose={() => setModalNovaInternacao(false)} />
+            <ModalNovaInternacao isOpen={modalNovaInternacao} onClose={() => setModalNovaInternacao(false)}/>
 
-            <ModalEditarPacientes isOpen={modalEditarPaciente} onClose={() => setModalEditarPaciente(false)} />
+            <ModalEditarPacientes isOpen={modalEditarPaciente} onClose={() => setModalEditarPaciente(false)}/>
 
-            <ModalConfirmarExclusao isOpen={modalConfirmarExclusao} onClose={() => setModalConfirmarExclusao(false)} />
+            <ModalConfirmarExclusao isOpen={modalConfirmarExclusao} onClose={() => setModalConfirmarExclusao(false)}/>
         </div>
 
     )

@@ -24,3 +24,9 @@ export const darAltaInternacao = (id, dataAlta) => patch(`/internacoes/${id}/alt
 
 // Profissionais
 export const alterarStatusProfissional = (id, ativo) => patch(`/profissionais/${id}/status`, { ativo })
+
+
+// Cadastros
+const post = (caminho, corpo) => api(caminho, { method: 'POST', body: JSON.stringify(corpo) })
+
+export const cadastrarPaciente = (dados) => post('/pacientes', dados)
