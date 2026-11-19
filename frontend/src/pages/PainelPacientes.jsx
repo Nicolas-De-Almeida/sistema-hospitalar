@@ -6,10 +6,12 @@ import ModalAgendarConsulta from '../components/modals/ModalAgendarConsulta'
 import ModalNovaInternacao from '../components/modals/ModalNovaInternacao'
 import ModalEditarPacientes from '../components/modals/ModalEditarPacientes'
 import ModalConfirmarExclusao from '../components/modals/ModalConfirmarExclusao'
-import pacientesDataTeste from '../data/CardsTeste.json'
+import LinhaEstado from '../components/LinhaEstado'
 
+import { useDados } from '../hooks/useDados'
+import { listarPacientes } from '../services/hospitalService'
 import { getIniciais } from '../utils/primeiraLetraMaiuscula'
-
+import { formatarCpf } from '../utils/rotulos'
 
 
 export default function PainelPacientes() {
@@ -19,6 +21,18 @@ export default function PainelPacientes() {
     const [modalEditarPaciente, setModalEditarPaciente] = useState(false)
     const [modalConfirmarExclusao, setModalConfirmarExclusao] = useState(false)
 
+    const { dados: pacientes, carregando, erro } = useDados(listarPacientes)
+
+    // Texto digitado na busca (nome ou CPF)
+    const [busca, setBusca] = useState('')
+    const termo = busca.trim().toLowerCase()
+    const termoNumeros = termo.replace(/\D/g, '')
+
+    const pacientesFiltrados = pacientes.filter((p) =>
+        p.nome.toLowerCase().includes(termo) ||
+        (termoNumeros !== '' && (p.cpf || '').replace(/\D/g, '').includes(termoNumeros))
+    )
+
     return (
         <div>
             <div className="flex items-center justify-between mb-6">
@@ -26,7 +40,7 @@ export default function PainelPacientes() {
                     <span className="font-bold tracking-wider text-cyan-800 uppercase">GESTÃO DE CADASTROS</span>
                 </div>
 
-                <button onClick={() => setModalNovoPaciente(true)} className="flex items-center gap-2 bg-cyan-800 hover:bg-cyan-950 text-white font-semibold text-sm px-4 py-2.5 rounded-xl shadow-sm transition-colors cursor-pointer">
+                <button onClick={() => setModalNovoPaciente(true)} className="flex items-center gap-2 bg-cyan-800 hover:bg-cyan-900 text-white font-semibold text-sm px-4 py-2.5 rounded-xl shadow-sm transition-colors cursor-pointer">
                     <Plus className="w-4 h-4" />
                     <span>Novo paciente</span>
                 </button>
@@ -36,11 +50,16 @@ export default function PainelPacientes() {
                 <div className="p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h2 className="font-bold text-slate-800 text-base">Lista de pacientes</h2>
-                        <p className="text-xs text-slate-400 mt-0.5">{pacientesDataTeste?.length || 0} pacientes cadastrados</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{pacientes.length} pacientes cadastrados</p>
                     </div>
                     <div className="relative w-full md:w-80">
                         <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"/>
-                        <input type="text" placeholder="Buscar por nome ou CPF" className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-teal-600 transition-colors placeholder:text-slate-400"/>
+                        <input
+                            type="text"
+                            value={busca}
+                            onChange={(e) => setBusca(e.target.value)}
+                            placeholder="Buscar por nome ou CPF"
+                            className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-cyan-700 transition-colors placeholder:text-slate-400"/>
                     </div>
                 </div>
                 <div className="overflow-x-auto">
@@ -55,20 +74,26 @@ export default function PainelPacientes() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {pacientesDataTeste.map((paciente) => (
+                            <LinhaEstado
+                                colunas={5}
+                                carregando={carregando}
+                                erro={erro}
+                                quantidade={pacientesFiltrados.length}
+                                vazio={pacientes.length === 0 ? 'Nenhum paciente cadastrado.' : 'Nenhum paciente encontrado para essa busca.'}/>
+                            {pacientesFiltrados.map((paciente) => (
                                 <tr key={paciente.id} className="hover:bg-slate-50/60 transition-colors">
                                     <td className="py-3.5 px-5">
                                         <div className="flex items-center gap-3">
                                             <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-800 font-bold text-xs flex items-center justify-center shrink-0">
-                                                {getIniciais(paciente.nome || paciente.paciente)}
+                                                {getIniciais(paciente.nome)}
                                             </div>
                                             <span className="font-bold text-slate-800 text-xs">
-                                                {paciente.nome || paciente.paciente}
+                                                {paciente.nome}
                                             </span>
                                         </div>
                                     </td>
                                     <td className="py-3.5 px-5 text-slate-600 font-medium">
-                                        {paciente.cpf}
+                                        {formatarCpf(paciente.cpf)}
                                     </td>
                                     <td className="py-3.5 px-5 text-slate-600">
                                         {paciente.telefone}

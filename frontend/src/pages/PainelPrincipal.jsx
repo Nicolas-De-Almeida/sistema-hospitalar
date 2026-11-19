@@ -1,11 +1,15 @@
 import { CalendarDays, Bed, DoorOpen, ArrowBigRight, UserPlus, CalendarPlus, Plus } from 'lucide-react'
 import { PegarDataCalendario } from '../utils/Calendario'
-import { useState } from 'react';
+import { useState } from 'react'
 
-import CardsTeste from '../data/CardsTeste.json'
 import ModalNovoPaciente from '../components/modals/ModalNovoPaciente'
 import ModalAgendarConsulta from '../components/modals/ModalAgendarConsulta'
 import ModalNovaInternacao from '../components/modals/ModalNovaInternacao'
+import LinhaEstado from '../components/LinhaEstado'
+
+import { useDados } from '../hooks/useDados'
+import { listarConsultas, listarInternacoes, listarQuartos } from '../services/hospitalService'
+import { dataHojeISO, formatarHora } from '../utils/rotulos'
 
 
 export default function PainelPrincipal() {
@@ -15,6 +19,28 @@ export default function PainelPrincipal() {
     const[modalAgendarConsultaAberto, setModalAgendarConsultaAberto] = useState(false)
     const[modalNovaInternacaoAberto, setModalNovaInternacaoAberto] = useState(false)
 
+    // Dados reais, vindos do back end
+    const consultas = useDados(listarConsultas)
+    const internacoes = useDados(listarInternacoes)
+    const quartos = useDados(listarQuartos)
+
+    // Consultas de hoje, da mais cedo para a mais tarde
+    const hoje = dataHojeISO()
+    const consultasHoje = consultas.dados
+        .filter((c) => c.data === hoje)
+        .sort((a, b) => a.horario.localeCompare(b.horario))
+    const consultasAbertas = consultasHoje.filter((c) => c.status === 'AGENDADA' || c.status === 'CONFIRMADA').length
+    const consultasConcluidas = consultasHoje.filter((c) => c.status === 'CONCLUIDA').length
+
+    // Internações ativas
+    const internacoesAtivas = internacoes.dados.filter((i) => i.status === 'ATIVA').length
+
+    const totalQuartos = quartos.dados.length
+    const quartosDisponiveis = quartos.dados.filter((q) => q.situacao === 'DISPONIVEL').length
+    const quartosOcupados = totalQuartos - quartosDisponiveis
+
+    // Enquanto carrega mostra "...", se der erro mostra "-"
+    const mostrar = (lista, valor) => (lista.carregando ? '...' : lista.erro ? '-' : valor)
 
     return (
         <div>
@@ -31,18 +57,19 @@ export default function PainelPrincipal() {
                 </div>
             </div>
 
-            <div className='grid grid-cols-3 gap-5'>
-                {/* Isso aqui é um exemplo de como vai parecer quando fizermos o backend */}
-                {/* Card1: consulta, Card2: Internações ativas, Card3: Quartos disponíveis */}
+            <div className='grid grid-cols-1 md:grid-cols-3 gap-5'>
+                {/* Card1: consultas de hoje, Card2: internações ativas, Card3: quartos disponíveis */}
                 <span className="flex flex-col gap-1 border border-slate-200 shadow-sm rounded-lg p-5">
                     <div className="flex justify-between">
                         <CalendarDays className="bg-teal-200 text-cyan-800 rounded-lg p-1" />
                         <ArrowBigRight className="text-slate-300" />
                     </div>
                     <div className="font-bold flex flex-col gap-1">
-                        <h1 className="text-lg">18</h1>
+                        <h1 className="text-lg">{mostrar(consultas, consultasHoje.length)}</h1>
                         <p className="text-sm">Consultas hoje</p>
-                        <p className="text-slate-400 text-sm">5 agendadas, 12 realizadas</p>
+                        <p className="text-slate-400 text-sm">
+                            {mostrar(consultas, `${consultasAbertas} a realizar, ${consultasConcluidas} concluídas`)}
+                        </p>
                     </div>
                 </span>
 
@@ -52,7 +79,7 @@ export default function PainelPrincipal() {
                         <ArrowBigRight className="text-slate-300" />
                     </div>
                     <div className="font-bold flex flex-col gap-1">
-                        <h1 className="text-lg">24</h1>
+                        <h1 className="text-lg">{mostrar(internacoes, internacoesAtivas)}</h1>
                         <p className="text-sm">Internações ativas</p>
                         <p className="text-slate-400 text-sm">Em acompanhamento</p>
                     </div>
@@ -64,15 +91,20 @@ export default function PainelPrincipal() {
                         <ArrowBigRight className="text-slate-300" />
                     </div>
                     <div className="font-bold flex flex-col gap-1">
-                        <h1><span className="font-bold text-lg">9</span> <span className="text-slate-400">de 40</span></h1>
+                        <h1>
+                            <span className="font-bold text-lg">{mostrar(quartos, quartosDisponiveis)}</span>{' '}
+                            <span className="text-slate-400">de {mostrar(quartos, totalQuartos)}</span>
+                        </h1>
                         <p className="text-sm">Quartos disponíveis</p>
-                        <p className="text-slate-400 text-sm">31 quartos ocupados no momento</p>
+                        <p className="text-slate-400 text-sm">
+                            {mostrar(quartos, `${quartosOcupados} quartos ocupados no momento`)}
+                        </p>
                     </div>
                 </span>
             </div>
 
-            <div className="flex justify-between mt-8">
-                <div className="mb-4">
+            <div className="flex flex-wrap items-center justify-between gap-4 mt-8">
+                <div>
                     <p className="font-bold text-slate-700">Ações rápidas</p>
                 </div>
 
@@ -96,8 +128,10 @@ export default function PainelPrincipal() {
                     </button>
                 </div>
             </div>
-            {/*Tabela de exemplo para comos os dados vão ser mostrados */}
-            <div className="border border-slate-200 rounded-lg shadow-sm mt-5 p-5">
+
+            {/* Agenda do dia */}
+            <div className="border border-slate-200 rounded-lg shadow-sm mt-5 p-5 overflow-x-auto">
+                <p className="font-bold text-slate-700 mb-3">Consultas de hoje</p>
                 <table className="w-full text-left text-sm">
                     <thead>
                         <tr className="text-xs text-slate-400 border-b border-slate-100">
@@ -108,15 +142,18 @@ export default function PainelPrincipal() {
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                        {CardsTeste.map((item) => (
-                            <tr key={item.id}>
-                                <td className="py-3 font-bold text-slate-800">{item.horario}</td>
-                                <td className="py-3 font-semibold text-slate-800">{item.paciente}</td>
-                                <td className="py-3">
-                                    <div className="font-semibold text-slate-800">{item.profissional}</div>
-                                    <div className="text-xs text-slate-400">{item.especialidade}</div>
-                                </td>
-                                <td className="py-3 text-slate-600">{item.motivo}</td>
+                        <LinhaEstado
+                            colunas={4}
+                            carregando={consultas.carregando}
+                            erro={consultas.erro}
+                            quantidade={consultasHoje.length}
+                            vazio="Nenhuma consulta marcada para hoje."/>
+                        {consultasHoje.map((consulta) => (
+                            <tr key={consulta.id}>
+                                <td className="py-3 font-bold text-slate-800">{formatarHora(consulta.horario)}</td>
+                                <td className="py-3 font-semibold text-slate-800">{consulta.pacienteNome}</td>
+                                <td className="py-3 font-semibold text-slate-800">{consulta.profissionalNome}</td>
+                                <td className="py-3 text-slate-600">{consulta.motivo}</td>
                             </tr>
                         ))}
                     </tbody>
