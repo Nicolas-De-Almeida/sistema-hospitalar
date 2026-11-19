@@ -1,103 +1,108 @@
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, Pencil, LogOut } from 'lucide-react'
 import ModalNovaInternacao from '../components/modals/ModalNovaInternacao'
+import LinhaEstado from '../components/LinhaEstado'
+import BadgeStatus from '../components/BadgeStatus'
+import BotaoAcao from '../components/BotaoAcao'
+import AvisoErro from '../components/AvisoErro'
+
+import { useDados } from '../hooks/useDados'
+import { useAcao } from '../hooks/useAcao'
+import { listarInternacoes, darAltaInternacao } from '../services/hospitalService'
+import { getIniciais } from '../utils/primeiraLetraMaiuscula'
+import { formatarData, dataHojeISO, estiloStatusInternacao } from '../utils/rotulos'
 
 export default function GestaoInternacoes() {
-    const [modalNovaInternacao, setModalNovaInternacao] = useState(false);
-    
-    // Estado inicial vazio aguardando fazermos o Backend
-    const [internacoes, setInternacoes] = useState([])
+    const [modalNovaInternacao, setModalNovaInternacao] = useState(false)
 
-    const renderStatusBadge = (status) => {
-        let colors = ""
-        switch (status) {
-            case 'Ativa':
-                colors = "bg-teal-50 text-teal-700 marker-teal-500"
-                break
-            case 'Encerrada':
-                colors = "bg-slate-100 text-slate-500 marker-slate-400"
-                break
-            default:
-                colors = "bg-slate-100 text-slate-600 marker-slate-400"
+    // Lista de internações
+    const { dados: internacoes, carregando, erro, recarregar } = useDados(listarInternacoes)
+    const { executar, ocupado, erroAcao } = useAcao(recarregar)
+
+    // Dá alta com a data de hoje
+    function darAlta(internacao) {
+        if (window.confirm(`Dar alta para ${internacao.pacienteNome} hoje?`)) {
+            executar(() => darAltaInternacao(internacao.id, dataHojeISO()))
         }
-
-        const [bgText, markerText] = colors.split(" marker-")
-
-        return (
-            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold ${bgText}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${markerText}`}></span>
-                {status}
-            </span>
-        )
     }
 
     return (
-        <div className="p-8 max-w-7xl mx-auto h-[calc(100vh-4rem)] flex flex-col">
-            
-            <div className="flex items-center justify-between mb-8 shrink-0">
+        <div>
+            <div className="flex items-center justify-between mb-6">
                 <div>
-                    <span className="font-bold tracking-wider text-cyan-800 uppercase text-xs">GESTÃO DE INTERNAÇÕES</span>
+                    <span className="font-bold tracking-wider text-cyan-800 uppercase">GESTÃO DE INTERNAÇÕES</span>
                 </div>
 
-                <button 
-                    onClick={() => setModalNovaInternacao(true)} className="flex items-center gap-2 bg-cyan-800 hover:bg-cyan-900 text-white font-semibold text-sm px-4 py-2.5 rounded-lg shadow-sm transition-colors cursor-pointer">
+                <button onClick={() => setModalNovaInternacao(true)} className="flex items-center gap-2 bg-cyan-800 hover:bg-cyan-900 text-white font-semibold text-sm px-4 py-2.5 rounded-xl shadow-sm transition-colors cursor-pointer">
                     <Plus className="w-4 h-4" />
                     <span>Nova internação</span>
                 </button>
             </div>
 
-            <div className="bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col flex-1 min-h-0">
-                
-                <div className="p-5 border-b border-slate-100 shrink-0">
-                    <h2 className="font-semibold text-slate-800 text-sm">Pacientes internados</h2>
+            <AvisoErro mensagem={erroAcao} />
+
+            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                <div className="p-5 border-b border-slate-100">
+                    <h2 className="font-bold text-slate-800 text-base">Pacientes internados</h2>
+                    <p className="text-xs text-slate-400 mt-0.5">{internacoes.length} internações encontradas</p>
                 </div>
 
-                <div className="overflow-auto flex-1">
-                    <table className="w-full text-left text-sm whitespace-nowrap">
-                        <thead className="sticky top-0 bg-slate-50/95 backdrop-blur-sm z-10">
-                            <tr className="text-slate-500 font-bold border-b border-slate-200">
-                                <th className="py-3.5 px-5 uppercase text-xs tracking-wider">Paciente</th>
-                                <th className="py-3.5 px-5 uppercase text-xs tracking-wider">Profissional Responsável</th>
-                                <th className="py-3.5 px-5 uppercase text-xs tracking-wider">Quarto</th>
-                                <th className="py-3.5 px-5 uppercase text-xs tracking-wider">Entrada</th>
-                                <th className="py-3.5 px-5 uppercase text-xs tracking-wider">Alta Prevista</th>
-                                <th className="py-3.5 px-5 uppercase text-xs tracking-wider">Status</th>
-                                <th className="py-3.5 px-5 uppercase text-xs tracking-wider text-right">Ações</th>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                        <thead>
+                            <tr className="text-slate-400 font-bold border-b border-slate-100 bg-slate-50/50">
+                                <th className="py-3 px-5">PACIENTE</th>
+                                <th className="py-3 px-5">PROFISSIONAL RESPONSÁVEL</th>
+                                <th className="py-3 px-5">QUARTO</th>
+                                <th className="py-3 px-5">ENTRADA</th>
+                                <th className="py-3 px-5">ALTA PREVISTA</th>
+                                <th className="py-3 px-5">STATUS</th>
+                                <th className="py-3 px-5 text-right">AÇÕES</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {internacoes.length === 0 ? (
-                                <tr>
-                                    <td colSpan="7" className="py-8 text-center text-slate-500">
-                                        Nenhuma internação encontrada.
+                            <LinhaEstado
+                                colunas={7}
+                                carregando={carregando}
+                                erro={erro}
+                                quantidade={internacoes.length}
+                                vazio="Nenhuma internação encontrada."/>
+                            {internacoes.map((internacao) => (
+                                <tr key={internacao.id} className="hover:bg-slate-50/60 transition-colors">
+                                    <td className="py-3.5 px-5">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-800 font-bold text-xs flex items-center justify-center shrink-0">
+                                                {getIniciais(internacao.pacienteNome)}
+                                            </div>
+                                            <span className="font-bold text-slate-800 text-xs">
+                                                {internacao.pacienteNome}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td className="py-3.5 px-5 text-slate-600">{internacao.profissionalNome}</td>
+                                    <td className="py-3.5 px-5 text-slate-800 font-bold">{internacao.quartoNumero}</td>
+                                    <td className="py-3.5 px-5 text-slate-600">{formatarData(internacao.dataEntrada)}</td>
+                                    <td className="py-3.5 px-5 text-slate-600">{formatarData(internacao.dataPrevistaAlta)}</td>
+                                    <td className="py-3.5 px-5">
+                                        <BadgeStatus estilo={estiloStatusInternacao(internacao.status)} />
+                                    </td>
+                                    <td className="py-3.5 px-5">
+                                        <div className="flex items-center justify-end gap-2 text-slate-400">
+                                            {/* Só dá para editar e dar alta em internação ativa */}
+                                            {internacao.status === 'ATIVA' && (
+                                                <>
+                                                    <BotaoAcao titulo="Editar internação">
+                                                        <Pencil className="w-4 h-4" />
+                                                    </BotaoAcao>
+                                                    <BotaoAcao titulo="Dar alta" desabilitado={ocupado} onClick={() => darAlta(internacao)}>
+                                                        <LogOut className="w-4 h-4" />
+                                                    </BotaoAcao>
+                                                </>
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
-                            ) : (
-                                internacoes.map((internacao) => (
-                                    <tr key={internacao.id} className="hover:bg-slate-50/60 transition-colors group text-slate-700">
-                                        <td className="py-3 px-5">
-                                            <div className="flex items-center gap-2.5">
-                                                <div className="w-7 h-7 rounded-full bg-teal-50 text-teal-700 font-bold text-[11px] flex items-center justify-center shrink-0">
-                                                    {getIniciais(internacao.paciente)}
-                                                </div>
-                                                <span className="font-semibold text-slate-800">
-                                                    {internacao.paciente}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td className="py-3 px-5">{internacao.profissional}</td>
-                                        <td className="py-3 px-5">{internacao.quarto}</td>
-                                        <td className="py-3 px-5">{internacao.entrada}</td>
-                                        <td className="py-3 px-5">{internacao.altaPrevista}</td>
-                                        <td className="py-3 px-5">
-                                            {renderStatusBadge(internacao.status)}
-                                        </td>
-                                        <td className="py-3 px-5 text-right text-slate-400">
-                                            {/* Espaço reservado para os botões de ação que virão do backend */}
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
+                            ))}
                         </tbody>
                     </table>
                 </div>

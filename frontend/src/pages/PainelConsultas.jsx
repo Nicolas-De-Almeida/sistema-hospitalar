@@ -1,109 +1,143 @@
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, CheckCheck, Play, CircleCheck, CalendarClock, Ban, UserX } from 'lucide-react'
 import ModalAgendarConsulta from '../components/modals/ModalAgendarConsulta'
+import LinhaEstado from '../components/LinhaEstado'
+import BadgeStatus from '../components/BadgeStatus'
+import BotaoAcao from '../components/BotaoAcao'
+import AvisoErro from '../components/AvisoErro'
 
-const getIniciais = (nome) => {
-    if (!nome) return ''
-    return nome.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-};
+import { useDados } from '../hooks/useDados'
+import { useAcao } from '../hooks/useAcao'
+import {
+    listarConsultas,
+    confirmarConsulta,
+    iniciarConsulta,
+    concluirConsulta,
+    cancelarConsulta,
+    registrarFaltaConsulta,
+} from '../services/hospitalService'
+import { getIniciais } from '../utils/primeiraLetraMaiuscula'
+import { formatarData, formatarHora, estiloStatusConsulta } from '../utils/rotulos'
 
 export default function GestaoConsultas() {
-    const [modalNovaConsulta, setModalNovaConsulta] = useState(false);
+    const [modalNovaConsulta, setModalNovaConsulta] = useState(false)
 
-    // Estado inicial vazio aguardando fazermos o Backend
-    const [consultas, setConsultas] = useState([]);
+    // Lista de consultas
+    const { dados: consultas, carregando, erro, recarregar } = useDados(listarConsultas)
+    const { executar, ocupado, erroAcao } = useAcao(recarregar)
 
-    const renderStatusBadge = (status) => {
-        let colors = ""
-        switch (status) {
-            case 'Realizada':
-                colors = "bg-emerald-100 text-emerald-700 marker-emerald-500"
-                break;
-            case 'Agendada':
-                colors = "bg-amber-100 text-amber-700 marker-amber-500"
-                break;
-            case 'Cancelada':
-                colors = "bg-red-100 text-red-700 marker-red-500"
-                break;
-            case 'Faltou':
-                colors = "bg-slate-200 text-slate-700 marker-slate-500"
-                break;
-            default:
-                colors = "bg-slate-100 text-slate-600 marker-slate-400"
+    // Pede observações e conclui. Se a pessoa clicar em "Cancelar", não faz nada.
+    function concluir(consulta) {
+        const observacoes = window.prompt('Observações da consulta (opcional):', '')
+        if (observacoes === null) return
+        executar(() => concluirConsulta(consulta.id, observacoes.trim() || null))
+    }
+
+    function cancelar(consulta) {
+        if (window.confirm(`Cancelar a consulta de ${consulta.pacienteNome}?`)) {
+            executar(() => cancelarConsulta(consulta.id))
         }
+    }
 
-        const [bgText, markerText] = colors.split(" marker-")
-
-        return (
-            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold ${bgText}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${markerText}`}></span>
-                {status}
-            </span>
-        )
+    function registrarFalta(consulta) {
+        if (window.confirm(`Registrar que ${consulta.pacienteNome} não compareceu?`)) {
+            executar(() => registrarFaltaConsulta(consulta.id))
+        }
     }
 
     return (
-        <div className="p-8 max-w-7xl mx-auto h-[calc(100vh-4rem)] flex flex-col">
-            <div className="flex items-center justify-between mb-8 shrink-0">
+        <div>
+            <div className="flex items-center justify-between mb-6">
                 <div>
-                    <span className="font-bold tracking-wider text-cyan-900 uppercase">GESTÃO DE CONSULTAS</span>
-                    <p className="text-sm text-slate-500 mt-0.5">Agendamento e controle de consultas</p>
+                    <span className="font-bold tracking-wider text-cyan-800 uppercase">GESTÃO DE CONSULTAS</span>
                 </div>
 
-                <button onClick={() => setModalNovaConsulta(true)} className="flex items-center gap-2 bg-cyan-800 hover:bg-cyan-900 text-white font-semibold text-sm px-4 py-2.5 rounded-lg shadow-sm transition-colors cursor-pointer">
+                <button onClick={() => setModalNovaConsulta(true)} className="flex items-center gap-2 bg-cyan-800 hover:bg-cyan-900 text-white font-semibold text-sm px-4 py-2.5 rounded-xl shadow-sm transition-colors cursor-pointer">
                     <Plus className="w-4 h-4" />
                     <span>Nova consulta</span>
                 </button>
             </div>
 
-            <div className="bg-white border border-slate-200 rounded-xl shadow-sm flex flex-col flex-1 min-h-0">
-                <div className="p-5 border-b border-slate-100 shrink-0">
-                    <h2 className="font-semibold text-slate-800 text-sm">Agenda de consultas</h2>
-                    <p className="text-xs text-slate-500 mt-0.5">{consultas.length} consultas encontradas</p>
+            <AvisoErro mensagem={erroAcao} />
+
+            <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                <div className="p-5 border-b border-slate-100">
+                    <h2 className="font-bold text-slate-800 text-base">Agenda de consultas</h2>
+                    <p className="text-xs text-slate-400 mt-0.5">{consultas.length} consultas encontradas</p>
                 </div>
 
-                <div className="overflow-auto flex-1">
-                    <table className="w-full text-left text-sm whitespace-nowrap">
-                        <thead className="sticky top-0 bg-slate-50/95 backdrop-blur-sm z-10">
-                            <tr className="text-slate-500 font-bold border-b border-slate-200">
-                                <th className="py-3.5 px-5 uppercase text-xs tracking-wider">Data</th>
-                                <th className="py-3.5 px-5 uppercase text-xs tracking-wider">Horário</th>
-                                <th className="py-3.5 px-5 uppercase text-xs tracking-wider">Paciente</th>
-                                <th className="py-3.5 px-5 uppercase text-xs tracking-wider">Profissional</th>
-                                <th className="py-3.5 px-5 uppercase text-xs tracking-wider">Motivo</th>
-                                <th className="py-3.5 px-5 uppercase text-xs tracking-wider">Status</th>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs">
+                        <thead>
+                            <tr className="text-slate-400 font-bold border-b border-slate-100 bg-slate-50/50">
+                                <th className="py-3 px-5">DATA</th>
+                                <th className="py-3 px-5">HORÁRIO</th>
+                                <th className="py-3 px-5">PACIENTE</th>
+                                <th className="py-3 px-5">PROFISSIONAL</th>
+                                <th className="py-3 px-5">MOTIVO</th>
+                                <th className="py-3 px-5">STATUS</th>
+                                <th className="py-3 px-5 text-right">AÇÕES</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {consultas.length === 0 ? (
-                                <tr>
-                                    <td colSpan="6" className="py-8 text-center text-slate-500">
-                                        Nenhuma consulta encontrada.
+                            <LinhaEstado
+                                colunas={7}
+                                carregando={carregando}
+                                erro={erro}
+                                quantidade={consultas.length}
+                                vazio="Nenhuma consulta encontrada."/>
+                            {consultas.map((consulta) => (
+                                <tr key={consulta.id} className="hover:bg-slate-50/60 transition-colors">
+                                    <td className="py-3.5 px-5 text-slate-800 font-bold">{formatarData(consulta.data)}</td>
+                                    <td className="py-3.5 px-5 text-slate-800 font-bold">{formatarHora(consulta.horario)}</td>
+                                    <td className="py-3.5 px-5">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-800 font-bold text-xs flex items-center justify-center shrink-0">
+                                                {getIniciais(consulta.pacienteNome)}
+                                            </div>
+                                            <span className="font-bold text-slate-800 text-xs">
+                                                {consulta.pacienteNome}
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td className="py-3.5 px-5 text-slate-600">{consulta.profissionalNome}</td>
+                                    <td className="py-3.5 px-5 text-slate-600">{consulta.motivo}</td>
+                                    <td className="py-3.5 px-5">
+                                        <BadgeStatus estilo={estiloStatusConsulta(consulta.status)} />
+                                    </td>
+                                    <td className="py-3.5 px-5">
+                                        <div className="flex items-center justify-end gap-2 text-slate-400">
+                                            {/* Só aparecem as ações que a regra de negócio permite para o status atual */}
+                                            {consulta.status === 'AGENDADA' && (
+                                                <BotaoAcao titulo="Confirmar" desabilitado={ocupado} onClick={() => executar(() => confirmarConsulta(consulta.id))}>
+                                                    <CheckCheck className="w-4 h-4" />
+                                                </BotaoAcao>
+                                            )}
+                                            {(consulta.status === 'AGENDADA' || consulta.status === 'CONFIRMADA') && (
+                                                <>
+                                                    <BotaoAcao titulo="Iniciar atendimento" desabilitado={ocupado} onClick={() => executar(() => iniciarConsulta(consulta.id))}>
+                                                        <Play className="w-4 h-4" />
+                                                    </BotaoAcao>
+                                                    <BotaoAcao titulo="Remarcar">
+                                                        <CalendarClock className="w-4 h-4" />
+                                                    </BotaoAcao>
+                                                    <BotaoAcao titulo="Registrar falta" desabilitado={ocupado} onClick={() => registrarFalta(consulta)}>
+                                                        <UserX className="w-4 h-4" />
+                                                    </BotaoAcao>
+                                                    <BotaoAcao titulo="Cancelar consulta" perigo desabilitado={ocupado} onClick={() => cancelar(consulta)}>
+                                                        <Ban className="w-4 h-4" />
+                                                    </BotaoAcao>
+                                                </>
+                                            )}
+                                            {consulta.status === 'EM_ATENDIMENTO' && (
+                                                <BotaoAcao titulo="Concluir consulta" desabilitado={ocupado} onClick={() => concluir(consulta)}>
+                                                    <CircleCheck className="w-4 h-4" />
+                                                </BotaoAcao>
+                                            )}
+                                        </div>
                                     </td>
                                 </tr>
-                            ) : (
-                                consultas.map((consulta) => (
-                                    <tr key={consulta.id} className="hover:bg-slate-50/60 transition-colors group text-slate-700">
-                                        <td className="py-3 px-5 font-semibold text-slate-800">{consulta.data}</td>
-                                        <td className="py-3 px-5 font-semibold text-slate-800">{consulta.horario}</td>
-                                        <td className="py-3 px-5">
-                                            <div className="flex items-center gap-2.5">
-                                                <div className="w-7 h-7 rounded-full bg-teal-50 text-teal-700 font-bold text-[11px] flex items-center justify-center shrink-0">
-                                                    {getIniciais(consulta.paciente)}
-                                                </div>
-                                                <span className="font-semibold text-slate-800">
-                                                    {consulta.paciente}
-                                                </span>
-                                            </div>
-                                        </td>
-                                        <td className="py-3 px-5">{consulta.profissional}</td>
-                                        <td className="py-3 px-5 text-slate-500">{consulta.motivo}</td>
-                                        <td className="py-3 px-5">
-                                            {renderStatusBadge(consulta.status)}
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
+                            ))}
                         </tbody>
                     </table>
                 </div>

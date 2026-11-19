@@ -2,15 +2,40 @@ import { Search, Plus, Clock, Pencil, ToggleRight } from 'lucide-react'
 import { useState } from 'react'
 
 
-import profissionaisDataTeste from '../data/profissionaisDataTeste.json'
+import { useDados } from '../hooks/useDados'
+import { useAcao } from '../hooks/useAcao'
+import { listarProfissionais, alterarStatusProfissional } from '../services/hospitalService'
 import { getIniciais } from '../utils/primeiraLetraMaiuscula'
+import { rotuloEspecialidade } from '../utils/rotulos'
 
+import LinhaEstado from '../components/LinhaEstado'
+import AvisoErro from '../components/AvisoErro'
 import ModalNovoProfissional from '../components/modals/ModalNovoProfissional'
 import ModalEditarProfissionais from '../components/modals/ModalEditarProfissionais'
 
 export default function PainelProfissionais() {
     const [modalNovoProfissional, setModalNovoProfissional] = useState(false)
     const [modalEditarProfissionais, setModalEditarProfissionais] = useState(false)
+
+
+    const { dados: profissionais, carregando, erro, recarregar } = useDados(listarProfissionais)
+    const { executar, ocupado, erroAcao } = useAcao(recarregar)
+
+    // Ativa ou desativa o profissional (pede confirmação)
+    function alternarStatus(prof) {
+        const acao = prof.ativo ? 'desativar' : 'ativar'
+        if (window.confirm(`Deseja ${acao} ${prof.nome}?`)) {
+            executar(() => alterarStatusProfissional(prof.id, !prof.ativo))
+        }
+    }
+    // Texto digitado na busca (nome ou registro)
+    const [busca, setBusca] = useState('')
+    const termo = busca.trim().toLowerCase()
+
+    const profissionaisFiltrados = profissionais.filter((p) =>
+        p.nome.toLowerCase().includes(termo) ||
+        (p.registroProfissional || '').toLowerCase().includes(termo)
+    )
 
     return (
         <div>
@@ -19,23 +44,29 @@ export default function PainelProfissionais() {
                     <span className="font-bold tracking-wider text-cyan-800 uppercase">EQUIPE DE PROFISSIONAIS</span>
                 </div>
 
-                <button onClick={() => setModalNovoProfissional(true)} className="flex items-center gap-2 bg-teal-800 hover:bg-teal-900 text-white font-semibold text-sm px-4 py-2.5 rounded-xl shadow-sm transition-colors cursor-pointer">
+                <button onClick={() => setModalNovoProfissional(true)} className="flex items-center gap-2 bg-cyan-800 hover:bg-cyan-900 text-white font-semibold text-sm px-4 py-2.5 rounded-xl shadow-sm transition-colors cursor-pointer">
                     <Plus className="w-4 h-4" />
                     <span>Novo profissional</span>
                 </button>
             </div>
 
+            <AvisoErro mensagem={erroAcao} />
             <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
-                
+
                 <div className="p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h2 className="font-bold text-slate-800 text-base">Lista de profissionais</h2>
-                        <p className="text-xs text-slate-400 mt-0.5">{profissionaisDataTeste?.length || 0} profissionais cadastrados</p>
+                        <p className="text-xs text-slate-400 mt-0.5">{profissionais.length} profissionais cadastrados</p>
                     </div>
 
                     <div className="relative w-full md:w-80">
                         <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                        <input type="text" placeholder="Buscar por nome ou registro" className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-teal-600 transition-colors placeholder:text-slate-400"/>
+                        <input
+                            type="text"
+                            value={busca}
+                            onChange={(e) => setBusca(e.target.value)}
+                            placeholder="Buscar por nome ou registro"
+                            className="w-full pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-xs text-slate-800 focus:outline-none focus:border-cyan-700 transition-colors placeholder:text-slate-400"/>
                     </div>
                 </div>
 
@@ -53,7 +84,13 @@ export default function PainelProfissionais() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
-                            {profissionaisDataTeste.map((prof) => (
+                            <LinhaEstado
+                                colunas={7}
+                                carregando={carregando}
+                                erro={erro}
+                                quantidade={profissionaisFiltrados.length}
+                                vazio={profissionais.length === 0 ? 'Nenhum profissional cadastrado.' : 'Nenhum profissional encontrado para essa busca.'}/>
+                            {profissionaisFiltrados.map((prof) => (
                                 <tr key={prof.id} className="hover:bg-slate-50/60 transition-colors">
                                     <td className="py-3.5 px-5">
                                         <div className="flex items-center gap-3">
@@ -66,10 +103,10 @@ export default function PainelProfissionais() {
                                         </div>
                                     </td>
                                     <td className="py-3.5 px-5 text-slate-800 font-bold">
-                                        {prof.registro}
+                                        {prof.registroProfissional}
                                     </td>
                                     <td className="py-3.5 px-5 text-slate-600">
-                                        {prof.especialidade}
+                                        {rotuloEspecialidade(prof.especialidade)}
                                     </td>
                                     <td className="py-3.5 px-5 text-slate-600">
                                         {prof.telefone}
@@ -78,7 +115,7 @@ export default function PainelProfissionais() {
                                         {prof.email}
                                     </td>
                                     <td className="py-3.5 px-5">
-                                        {prof.status === 'Ativo' ? (
+                                        {prof.ativo ? (
                                             <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-emerald-50 text-emerald-700">
                                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Ativo</span>
                                         ) : (
@@ -91,10 +128,10 @@ export default function PainelProfissionais() {
                                             <button className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Horários de Atendimento">
                                                 <Clock className="w-4 h-4" />
                                             </button>
-                                            <button onClick={() => setModalNovoProfissional(true)} className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Editar">
+                                            <button onClick={() => setModalEditarProfissionais(true)} className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Editar">
                                                 <Pencil className="w-4 h-4" />
                                             </button>
-                                            <button className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Alterar Status">
+                                            <button onClick={() => alternarStatus(prof)} disabled={ocupado} className="hover:text-slate-700 p-1 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed" title={prof.ativo ? 'Desativar' : 'Ativar'}>
                                                 <ToggleRight className="w-4 h-4" />
                                             </button>
                                         </div>
@@ -104,9 +141,10 @@ export default function PainelProfissionais() {
                         </tbody>
                     </table>
                 </div>
+            </div>
+
             <ModalNovoProfissional isOpen={modalNovoProfissional} onClose={() => setModalNovoProfissional(false)}/>
             <ModalEditarProfissionais isOpen={modalEditarProfissionais} onClose={() => setModalEditarProfissionais(false)}/>
-            </div>
         </div>
     )
 }
