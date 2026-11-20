@@ -2,6 +2,8 @@ package trabalhoPratico.sistemaHospitalar.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -83,7 +85,6 @@ class PacienteControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.mensagem").value("Paciente não encontrado: 99."));
     }
-
     @Test
     void cpfDuplicadoRetorna409() throws Exception {
         when(pacienteService.cadastrar(any(PacienteRequest.class)))
@@ -94,6 +95,22 @@ class PacienteControllerTest {
                         .content(JSON_VALIDO))
                 .andExpect(status().isConflict())
                 .andExpect(jsonPath("$.mensagem").value("Já existe um paciente cadastrado com este CPF."));
+    }
+
+    @Test
+    void exclusaoValidaRetorna204() throws Exception {
+        mockMvc.perform(delete("/api/pacientes/1"))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void exclusaoDePacienteComHistoricoRetorna409() throws Exception {
+        doThrow(new ConflitoException("Não é possível excluir um paciente que já possui atendimentos ou internações registrados."))
+                .when(pacienteService).excluir(1L);
+
+        mockMvc.perform(delete("/api/pacientes/1"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.mensagem").value("Não é possível excluir um paciente que já possui atendimentos ou internações registrados."));
     }
 
     private static PacienteResponse responsePadrao() {

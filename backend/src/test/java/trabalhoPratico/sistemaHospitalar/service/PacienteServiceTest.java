@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -22,6 +23,7 @@ import trabalhoPratico.sistemaHospitalar.exception.ConflitoException;
 import trabalhoPratico.sistemaHospitalar.exception.RecursoNaoEncontradoException;
 import trabalhoPratico.sistemaHospitalar.model.Endereco;
 import trabalhoPratico.sistemaHospitalar.model.Paciente;
+import trabalhoPratico.sistemaHospitalar.model.Atendimento;
 import trabalhoPratico.sistemaHospitalar.repository.PacienteRepository;
 
 class PacienteServiceTest {
@@ -94,6 +96,33 @@ class PacienteServiceTest {
 
         assertEquals("Maria Atualizada", resposta.nome());
         assertEquals("novo@exemplo.com", resposta.email());
+    }
+
+    @Test
+    void excluiPacienteSemHistorico() {
+        Paciente paciente = pacientePadrao();
+        when(repository.findById(1L)).thenReturn(Optional.of(paciente));
+
+        service.excluir(1L);
+
+        verify(repository).delete(paciente);
+    }
+
+    @Test
+    void naoExcluiPacienteComAtendimentos() {
+        Paciente paciente = mock(Paciente.class);
+        when(paciente.getAtendimentos()).thenReturn(List.of(mock(Atendimento.class)));
+        when(repository.findById(1L)).thenReturn(Optional.of(paciente));
+
+        assertThrows(ConflitoException.class, () -> service.excluir(1L));
+        verify(repository, never()).delete(any(Paciente.class));
+    }
+
+    @Test
+    void informaQuandoExcluirPacienteQueNaoExiste() {
+        when(repository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(RecursoNaoEncontradoException.class, () -> service.excluir(99L));
     }
 
     @Test

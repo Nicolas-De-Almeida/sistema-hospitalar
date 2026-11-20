@@ -68,6 +68,18 @@ public class PacienteService {
         return PacienteResponse.de(pacienteRepository.saveAndFlush(paciente));
     }
 
+    // Regra: o histórico médico não pode ser perdido. Só dá para excluir quem 
+    // nunca teve atendimento nem internação
+    @Transactional
+    public void excluir(Long id) {
+        Paciente paciente = buscarEntidade(id);
+        if (!paciente.getAtendimentos().isEmpty() || !paciente.getInternacoes().isEmpty()) {
+            throw new ConflitoException(
+                    "Não é possível excluir um paciente que já possui atendimentos ou internações registrados.");
+        }
+        pacienteRepository.delete(paciente);
+    }
+
     @Transactional(readOnly = true)
     public HistoricoMedicoResponse consultarHistorico(Long id) {
         return HistoricoMedicoResponse.de(buscarEntidade(id));
