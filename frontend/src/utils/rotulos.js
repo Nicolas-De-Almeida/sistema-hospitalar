@@ -20,6 +20,12 @@ export function dataHojeISO() {
     return `${agora.getFullYear()}-${mes}-${dia}`
 }
 
+// "2026-11-17T10:30:00" -> "17/11/2026 10:30"
+export function formatarDataHora(iso) {
+    if (!iso) return '-'
+    return `${formatarData(iso.substring(0, 10))} ${formatarHora(iso.substring(11))}`
+}
+
 // Se o CPF tiver 11 números, coloca os pontos e o traço
 export function formatarCpf(cpf) {
     if (!cpf) return '-'

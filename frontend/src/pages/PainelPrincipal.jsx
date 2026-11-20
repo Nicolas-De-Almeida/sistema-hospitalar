@@ -2,7 +2,7 @@ import { CalendarDays, Bed, DoorOpen, ArrowBigRight, UserPlus, CalendarPlus, Plu
 import { PegarDataCalendario } from '../utils/Calendario'
 import { useState } from 'react'
 
-import ModalNovoPaciente from '../components/modals/ModalNovoPaciente'
+import ModalPaciente from '../components/modals/ModalPaciente'
 import ModalAgendarConsulta from '../components/modals/ModalAgendarConsulta'
 import ModalNovaInternacao from '../components/modals/ModalNovaInternacao'
 import LinhaEstado from '../components/LinhaEstado'
@@ -159,7 +159,7 @@ export default function PainelPrincipal() {
                     </tbody>
                 </table>
             </div>
-            <ModalNovoPaciente isOpen={modalPacienteAberto} onClose={() => setModalNovoPacienteAberto(false)}/>
+            <ModalPaciente isOpen={modalPacienteAberto} onClose={() => setModalNovoPacienteAberto(false)}/>
             <ModalAgendarConsulta isOpen={modalAgendarConsultaAberto} onClose={() => setModalAgendarConsultaAberto(false)}/>
             <ModalNovaInternacao isOpen={modalNovaInternacaoAberto} onClose={() => setModalNovaInternacaoAberto(false)}/>
         </div>

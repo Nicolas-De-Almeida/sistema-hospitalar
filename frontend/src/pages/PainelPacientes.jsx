@@ -1,26 +1,36 @@
 import { Search, Plus, FileText, Calendar, Bed, Pencil, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
-import ModalNovoPaciente from '../components/modals/ModalNovoPaciente'
+import ModalPaciente from '../components/modals/ModalPaciente'
+import ModalProntuario from '../components/modals/ModalProntuario'
 import ModalAgendarConsulta from '../components/modals/ModalAgendarConsulta'
 import ModalNovaInternacao from '../components/modals/ModalNovaInternacao'
-import ModalEditarPacientes from '../components/modals/ModalEditarPacientes'
 import ModalConfirmarExclusao from '../components/modals/ModalConfirmarExclusao'
 import LinhaEstado from '../components/LinhaEstado'
 
 import { useDados } from '../hooks/useDados'
-import { listarPacientes } from '../services/hospitalService'
+import { listarPacientes, excluirPaciente } from '../services/hospitalService'
 import { getIniciais } from '../utils/primeiraLetraMaiuscula'
 import { formatarCpf } from '../utils/rotulos'
 
 
 export default function PainelPacientes() {
-    const [modalNovoPaciente, setModalNovoPaciente] = useState(false)
+    // Modal de cadastro/edição: pacienteEditando = null significa "novo paciente"
+    const [modalPaciente, setModalPaciente] = useState(false)
+    const [pacienteEditando, setPacienteEditando] = useState(null)
+
+    // Paciente cujo prontuário está aberto (null = fechado)
+    const [pacienteProntuario, setPacienteProntuario] = useState(null)
+
+    // Paciente que a pessoa está tentando excluir (null = modal fechado)
+    const [pacienteExcluindo, setPacienteExcluindo] = useState(null)
+    const [excluindo, setExcluindo] = useState(false)
+    const [erroExclusao, setErroExclusao] = useState('')
+
     const [modalAgendarConsulta, setModalAgendarConsulta] = useState(false)
     const [modalNovaInternacao, setModalNovaInternacao] = useState(false)
-    const [modalEditarPaciente, setModalEditarPaciente] = useState(false)
-    const [modalConfirmarExclusao, setModalConfirmarExclusao] = useState(false)
 
+    // Lista real de pacientes, vinda do back end
     const { dados: pacientes, carregando, erro, recarregar } = useDados(listarPacientes)
 
     // Texto digitado na busca (nome ou CPF)
@@ -33,6 +43,36 @@ export default function PainelPacientes() {
         (termoNumeros !== '' && (p.cpf || '').replace(/\D/g, '').includes(termoNumeros))
     )
 
+    function abrirNovo() {
+        setPacienteEditando(null)
+        setModalPaciente(true)
+    }
+
+    function abrirEdicao(paciente) {
+        setPacienteEditando(paciente)
+        setModalPaciente(true)
+    }
+
+    function fecharExclusao() {
+        setPacienteExcluindo(null)
+        setErroExclusao('')
+    }
+
+    async function confirmarExclusao() {
+        setExcluindo(true)
+        setErroExclusao('')
+        try {
+            await excluirPaciente(pacienteExcluindo.id)
+            await recarregar()
+            fecharExclusao()
+        } catch (e) {
+            // Ex: paciente com consultas/internações não pode ser excluído
+            setErroExclusao(e.message)
+        } finally {
+            setExcluindo(false)
+        }
+    }
+
     return (
         <div>
             <div className="flex items-center justify-between mb-6">
@@ -40,7 +80,7 @@ export default function PainelPacientes() {
                     <span className="font-bold tracking-wider text-cyan-800 uppercase">GESTÃO DE CADASTROS</span>
                 </div>
 
-                <button onClick={() => setModalNovoPaciente(true)} className="flex items-center gap-2 bg-cyan-800 hover:bg-cyan-900 text-white font-semibold text-sm px-4 py-2.5 rounded-xl shadow-sm transition-colors cursor-pointer">
+                <button onClick={abrirNovo} className="flex items-center gap-2 bg-cyan-800 hover:bg-cyan-900 text-white font-semibold text-sm px-4 py-2.5 rounded-xl shadow-sm transition-colors cursor-pointer">
                     <Plus className="w-4 h-4" />
                     <span>Novo paciente</span>
                 </button>
@@ -103,7 +143,7 @@ export default function PainelPacientes() {
                                     </td>
                                     <td className="py-3.5 px-5">
                                         <div className="flex items-center justify-end gap-2 text-slate-400">
-                                            <button className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Prontuário">
+                                            <button onClick={() => setPacienteProntuario(paciente)} className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Prontuário">
                                                 <FileText className="w-4 h-4"/>
                                             </button>
                                             <button onClick={() => setModalAgendarConsulta(true)} className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Agendar Consulta">
@@ -113,10 +153,10 @@ export default function PainelPacientes() {
                                                 <Bed className="w-4 h-4"/>
                                             </button>
                                             <span className="text-slate-200">|</span>
-                                            <button onClick={() => setModalEditarPaciente(true)} className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Editar">
+                                            <button onClick={() => abrirEdicao(paciente)} className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Editar">
                                                 <Pencil className="w-4 h-4"/>
                                             </button>
-                                            <button onClick={() => setModalConfirmarExclusao(true)} className="hover:text-red-600 p-1 transition-colors cursor-pointer" title="Excluir">
+                                            <button onClick={() => setPacienteExcluindo(paciente)} className="hover:text-red-600 p-1 transition-colors cursor-pointer" title="Excluir">
                                                 <Trash2 className="w-4 h-4"/>
                                             </button>
                                         </div>
@@ -127,15 +167,27 @@ export default function PainelPacientes() {
                     </table>
                 </div>
             </div>
-            <ModalNovoPaciente isOpen={modalNovoPaciente} onClose={() => setModalNovoPaciente(false)} onSalvo={recarregar}/>
+            <ModalPaciente
+                key={pacienteEditando?.id ?? 'novo'}
+                isOpen={modalPaciente}
+                onClose={() => setModalPaciente(false)}
+                onSalvo={recarregar}
+                paciente={pacienteEditando}/>
 
-            <ModalAgendarConsulta isOpen={modalAgendarConsulta} onClose={() => setModalAgendarConsulta(false)}/>
+            <ModalProntuario isOpen={pacienteProntuario !== null} onClose={() => setPacienteProntuario(null)} paciente={pacienteProntuario} />
 
-            <ModalNovaInternacao isOpen={modalNovaInternacao} onClose={() => setModalNovaInternacao(false)}/>
+            <ModalAgendarConsulta isOpen={modalAgendarConsulta} onClose={() => setModalAgendarConsulta(false)} />
 
-            <ModalEditarPacientes isOpen={modalEditarPaciente} onClose={() => setModalEditarPaciente(false)}/>
+            <ModalNovaInternacao isOpen={modalNovaInternacao} onClose={() => setModalNovaInternacao(false)} />
 
-            <ModalConfirmarExclusao isOpen={modalConfirmarExclusao} onClose={() => setModalConfirmarExclusao(false)}/>
+            <ModalConfirmarExclusao
+                isOpen={pacienteExcluindo !== null}
+                onClose={fecharExclusao}
+                onConfirm={confirmarExclusao}
+                titulo="Excluir paciente?"
+                mensagem={`Você tem certeza que deseja excluir ${pacienteExcluindo?.nome ?? 'este paciente'}?`}
+                erro={erroExclusao}
+                excluindo={excluindo}/>
         </div>
 
     )

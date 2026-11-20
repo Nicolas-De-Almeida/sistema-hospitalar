@@ -32,3 +32,11 @@ const post = (caminho, corpo) => api(caminho, { method: 'POST', body: JSON.strin
 export const cadastrarPaciente = (dados) => post('/pacientes', dados)
 
 export const cadastrarProfissional = (dados) => post('/profissionais', dados)
+
+
+// Edição, exclusão e consulta de detalhes 
+const put = (caminho, corpo) => api(caminho, { method: 'PUT', body: JSON.stringify(corpo) })
+
+export const atualizarPaciente = (id, dados) => put(`/pacientes/${id}`, dados)
+export const excluirPaciente = (id) => api(`/pacientes/${id}`, { method: 'DELETE' })
+export const buscarHistoricoPaciente = (id) => api(`/pacientes/${id}/historico`)
