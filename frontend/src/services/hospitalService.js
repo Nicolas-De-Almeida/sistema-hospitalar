@@ -30,3 +30,5 @@ export const alterarStatusProfissional = (id, ativo) => patch(`/profissionais/${
 const post = (caminho, corpo) => api(caminho, { method: 'POST', body: JSON.stringify(corpo) })
 
 export const cadastrarPaciente = (dados) => post('/pacientes', dados)
+
+export const cadastrarProfissional = (dados) => post('/profissionais', dados)

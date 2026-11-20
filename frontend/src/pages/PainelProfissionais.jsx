@@ -142,8 +142,8 @@ export default function PainelProfissionais() {
                     </table>
                 </div>
             </div>
-
-            <ModalNovoProfissional isOpen={modalNovoProfissional} onClose={() => setModalNovoProfissional(false)}/>
+            
+            <ModalNovoProfissional isOpen={modalNovoProfissional} onClose={() => setModalNovoProfissional(false)} onSalvo={recarregar}/>
             <ModalEditarProfissionais isOpen={modalEditarProfissionais} onClose={() => setModalEditarProfissionais(false)}/>
         </div>
     )

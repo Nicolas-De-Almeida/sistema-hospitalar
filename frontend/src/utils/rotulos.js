@@ -42,6 +42,11 @@ export function rotuloEspecialidade(valor) {
     return ESPECIALIDADES[valor] || valor || '-'
 }
 
+// Opções do campo "Especialidade" de um médico especialista.
+export const OPCOES_ESPECIALIDADE = Object.entries(ESPECIALIDADES)
+    .filter(([valor]) => valor !== 'CLINICO_GERAL' && valor !== 'CIRURGIA_GERAL')
+
+
 // Cada status da consulta: texto, cor do fundo/letra e cor da bolinha
 const STATUS_CONSULTA = {
     AGENDADA: { texto: 'Agendada', cor: 'bg-amber-100 text-amber-700', bolinha: 'bg-amber-500' },
