@@ -2,6 +2,7 @@ package trabalhoPratico.sistemaHospitalar.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -13,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -137,6 +139,21 @@ class ProfissionalControllerTest {
                 .andExpect(status().isNoContent());
     }
 
+    @Test
+    void listaDisponiveisConvertendoDataEHorario() throws Exception {
+        when(profissionalService.listarDisponiveis(any(), any(), any())).thenReturn(List.of());
+
+        mockMvc.perform(get("/api/profissionais/disponiveis")
+                        .param("especialidade", "CARDIOLOGIA")
+                        .param("data", "2026-11-23")
+                        .param("horario", "09:00"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray());
+
+        verify(profissionalService).listarDisponiveis(
+                Especialidade.CARDIOLOGIA, LocalDate.of(2026, 11, 23), LocalTime.of(9, 0));
+    }
+    
     private static ProfissionalResponse responsePadrao() {
         return new ProfissionalResponse(
                 1L, "Carlos Souza", "31999990000", "carlos@hospital.com", "CRM-MG 100",

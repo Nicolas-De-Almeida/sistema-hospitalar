@@ -1,6 +1,8 @@
 package trabalhoPratico.sistemaHospitalar.service;
 
 import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,6 +54,13 @@ public class ProfissionalService {
         return profissionais.stream().map(ProfissionalResponse::de).toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<ProfissionalResponse> listarDisponiveis(Especialidade especialidade, LocalDate data, LocalTime horario) {
+        return profissionalRepository.findByEspecialidade(especialidade).stream()
+                .filter(profissional -> profissional.disponivelEm(data, horario))
+                .map(ProfissionalResponse::de)
+                .toList();
+    }
     @Transactional(readOnly = true)
     public ProfissionalResponse buscarPorId(Long id) {
         return ProfissionalResponse.de(buscarEntidade(id));

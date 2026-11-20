@@ -13,6 +13,7 @@ import java.time.DayOfWeek;
 import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDate;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -95,6 +96,23 @@ class ProfissionalServiceTest {
         verify(repository).findByEspecialidade(Especialidade.CARDIOLOGIA);
     }
 
+    @Test
+    void listaApenasProfissionaisDisponiveisNoHorario() {
+        MedicoEspecialista comExpediente = especialista();
+        comExpediente.adicionarDisponibilidade(DayOfWeek.MONDAY, LocalTime.of(8, 0), LocalTime.of(12, 0), 30);
+        MedicoEspecialista semExpediente = new MedicoEspecialista(
+                "Bia Alves", "31999993333", "bia@hospital.com", "CRM-MG 201", Especialidade.CARDIOLOGIA);
+        when(repository.findByEspecialidade(Especialidade.CARDIOLOGIA))
+                .thenReturn(List.of(comExpediente, semExpediente));
+
+        // 23/11/2026 é uma segunda-feira
+        List<ProfissionalResponse> resposta = service.listarDisponiveis(
+                Especialidade.CARDIOLOGIA, LocalDate.of(2026, 11, 23), LocalTime.of(9, 0));
+
+        assertEquals(1, resposta.size());
+        assertEquals("Ana Lima", resposta.getFirst().nome());
+    }
+    
     @Test
     void naoPermiteAlterarCategoriaDoProfissional() {
         when(repository.findById(1L)).thenReturn(Optional.of(clinico()));

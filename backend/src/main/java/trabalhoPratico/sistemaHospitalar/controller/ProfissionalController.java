@@ -2,7 +2,10 @@ package trabalhoPratico.sistemaHospitalar.controller;
 
 import java.net.URI;
 import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -51,6 +54,14 @@ public class ProfissionalController {
         return ResponseEntity.ok(profissionalService.listar(especialidade));
     }
 
+    @GetMapping("/disponiveis")
+    public ResponseEntity<List<ProfissionalResponse>> listarDisponiveis(
+            @RequestParam Especialidade especialidade,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate data,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime horario) {
+        return ResponseEntity.ok(profissionalService.listarDisponiveis(especialidade, data, horario));
+    }
+    
     @GetMapping("/{id}")
     public ResponseEntity<ProfissionalResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(profissionalService.buscarPorId(id));
