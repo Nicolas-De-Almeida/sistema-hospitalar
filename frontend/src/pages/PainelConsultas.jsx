@@ -143,7 +143,7 @@ export default function GestaoConsultas() {
                 </div>
             </div>
 
-            <ModalAgendarConsulta isOpen={modalNovaConsulta} onClose={() => setModalNovaConsulta(false)} />
+            <ModalAgendarConsulta isOpen={modalNovaConsulta} onClose={() => setModalNovaConsulta(false)} onSalvo={recarregar} />
         </div>
     )
 }

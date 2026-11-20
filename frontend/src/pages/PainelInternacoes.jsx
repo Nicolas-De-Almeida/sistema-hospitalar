@@ -108,7 +108,7 @@ export default function GestaoInternacoes() {
                 </div>
             </div>
 
-            <ModalNovaInternacao isOpen={modalNovaInternacao} onClose={() => setModalNovaInternacao(false)} />
+            <ModalNovaInternacao isOpen={modalNovaInternacao} onClose={() => setModalNovaInternacao(false)} onSalvo={recarregar} />
         </div>
     )
 }

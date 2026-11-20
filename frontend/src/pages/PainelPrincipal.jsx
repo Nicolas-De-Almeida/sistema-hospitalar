@@ -160,8 +160,8 @@ export default function PainelPrincipal() {
                 </table>
             </div>
             <ModalPaciente isOpen={modalPacienteAberto} onClose={() => setModalNovoPacienteAberto(false)}/>
-            <ModalAgendarConsulta isOpen={modalAgendarConsultaAberto} onClose={() => setModalAgendarConsultaAberto(false)}/>
-            <ModalNovaInternacao isOpen={modalNovaInternacaoAberto} onClose={() => setModalNovaInternacaoAberto(false)}/>
+            <ModalAgendarConsulta isOpen={modalAgendarConsultaAberto} onClose={() => setModalAgendarConsultaAberto(false)} onSalvo={consultas.recarregar}/>
+            <ModalNovaInternacao isOpen={modalNovaInternacaoAberto} onClose={() => setModalNovaInternacaoAberto(false)} onSalvo={() => Promise.all([internacoes.recarregar(), quartos.recarregar()])}/>
         </div>
     )
 }

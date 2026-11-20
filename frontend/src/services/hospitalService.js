@@ -40,3 +40,13 @@ const put = (caminho, corpo) => api(caminho, { method: 'PUT', body: JSON.stringi
 export const atualizarPaciente = (id, dados) => put(`/pacientes/${id}`, dados)
 export const excluirPaciente = (id) => api(`/pacientes/${id}`, { method: 'DELETE' })
 export const buscarHistoricoPaciente = (id) => api(`/pacientes/${id}/historico`)
+
+
+//  Agendamentos e internações
+export const agendarConsulta = (dados) => post('/consultas', dados)
+export const criarInternacao = (dados) => post('/internacoes', dados)
+export const listarQuartosDisponiveis = () => api('/quartos/disponiveis')
+
+// Profissionais da especialidade que podem atender na data e horário
+export const listarProfissionaisDisponiveis = (especialidade, data, horario) =>
+    api(`/profissionais/disponiveis?${new URLSearchParams({ especialidade, data, horario })}`)

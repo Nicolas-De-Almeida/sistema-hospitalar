@@ -27,8 +27,9 @@ export default function PainelPacientes() {
     const [excluindo, setExcluindo] = useState(false)
     const [erroExclusao, setErroExclusao] = useState('')
 
-    const [modalAgendarConsulta, setModalAgendarConsulta] = useState(false)
-    const [modalNovaInternacao, setModalNovaInternacao] = useState(false)
+    // Paciente para quem estamos agendando consulta / criando internação (null = modal fechado)
+    const [pacienteConsulta, setPacienteConsulta] = useState(null)
+    const [pacienteInternacao, setPacienteInternacao] = useState(null)
 
     // Lista real de pacientes, vinda do back end
     const { dados: pacientes, carregando, erro, recarregar } = useDados(listarPacientes)
@@ -146,10 +147,10 @@ export default function PainelPacientes() {
                                             <button onClick={() => setPacienteProntuario(paciente)} className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Prontuário">
                                                 <FileText className="w-4 h-4"/>
                                             </button>
-                                            <button onClick={() => setModalAgendarConsulta(true)} className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Agendar Consulta">
+                                            <button onClick={() => setPacienteConsulta(paciente)} className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Agendar Consulta">
                                                 <Calendar className="w-4 h-4"/>
                                             </button>
-                                            <button onClick={() => setModalNovaInternacao(true)} className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Nova Internação">
+                                            <button onClick={() => setPacienteInternacao(paciente)} className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Nova Internação">
                                                 <Bed className="w-4 h-4"/>
                                             </button>
                                             <span className="text-slate-200">|</span>
@@ -176,9 +177,9 @@ export default function PainelPacientes() {
 
             <ModalProntuario isOpen={pacienteProntuario !== null} onClose={() => setPacienteProntuario(null)} paciente={pacienteProntuario} />
 
-            <ModalAgendarConsulta isOpen={modalAgendarConsulta} onClose={() => setModalAgendarConsulta(false)} />
+            <ModalAgendarConsulta isOpen={pacienteConsulta !== null} onClose={() => setPacienteConsulta(null)} paciente={pacienteConsulta} />
 
-            <ModalNovaInternacao isOpen={modalNovaInternacao} onClose={() => setModalNovaInternacao(false)} />
+            <ModalNovaInternacao isOpen={pacienteInternacao !== null} onClose={() => setPacienteInternacao(null)} paciente={pacienteInternacao} />
 
             <ModalConfirmarExclusao
                 isOpen={pacienteExcluindo !== null}
