@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
 
-import { cadastrarProfissional } from '../../services/hospitalService'
+import { atualizarProfissional, cadastrarProfissional } from '../../services/hospitalService'
 import { mascararTelefone } from '../../utils/mascaras'
 import { OPCOES_ESPECIALIDADE } from '../../utils/rotulos'
 
@@ -9,26 +9,28 @@ import { OPCOES_ESPECIALIDADE } from '../../utils/rotulos'
 const classeInput = 'w-full px-3 py-2.5 border border-slate-200 rounded-lg text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-cyan-700 focus:ring-1 focus:ring-cyan-700 transition-colors'
 const classeLabel = 'block text-sm font-semibold text-slate-700 mb-1.5'
 
-// Estado inicial do formulário (todos os campos vazios)
-const FORMULARIO_VAZIO = {
-    nome: '',
-    registroProfissional: '',
-    categoria: '',
-    especialidade: '',
-    areaCirurgica: '',
-    telefone: '',
-    email: '',
+// Estado inicial do formulário: vazio (novo) ou preenchido com os dados do profissional (edição)
+function formularioInicial(profissional) {
+    return {
+        nome: profissional?.nome ?? '',
+        registroProfissional: profissional?.registroProfissional ?? '',
+        categoria: profissional?.categoria ?? '',
+        especialidade: profissional?.especialidade ?? '',
+        areaCirurgica: profissional?.areaCirurgica ?? '',
+        telefone: mascararTelefone(profissional?.telefone ?? ''),
+        email: profissional?.email ?? '',
+    }
 }
 
-// onSalvo (opcional): função chamada depois de salvar, ex.: recarregar a lista de profissionais
-export default function ModalNovoProfissional({ isOpen, onClose, onSalvo }) {
-    const [form, setForm] = useState(FORMULARIO_VAZIO)
+// Serve para cadastrar e para editar.
+export default function ModalProfissional({ isOpen, onClose, onSalvo, profissional = null }) {
+    const editando = profissional !== null
+    const [form, setForm] = useState(() => formularioInicial(profissional))
     const [salvando, setSalvando] = useState(false)
     const [erro, setErro] = useState('')
 
     if (!isOpen) return null
 
-    // Atualiza um campo: atualizar('nome') devolve a função que o onChange do input usa
     const atualizar = (campo) => (e) => setForm({ ...form, [campo]: e.target.value })
 
     // Ao trocar a categoria, limpa os campos que só existem em outra categoria
@@ -36,7 +38,7 @@ export default function ModalNovoProfissional({ isOpen, onClose, onSalvo }) {
 
     // Limpa o formulário e fecha
     function fechar() {
-        setForm(FORMULARIO_VAZIO)
+        setForm(formularioInicial(profissional))
         setErro('')
         onClose()
     }
@@ -58,11 +60,15 @@ export default function ModalNovoProfissional({ isOpen, onClose, onSalvo }) {
         }
 
         try {
-            await cadastrarProfissional(dados)
+            if (editando) {
+                await atualizarProfissional(profissional.id, dados)
+            } else {
+                await cadastrarProfissional(dados)
+            }
             if (onSalvo) await onSalvo()
             fechar()
         } catch (e) {
-            // Mostra a mensagem do back end (ex.: "Já existe um profissional com este registro.")
+            // Mostra a mensagem do back end ("Já existe um profissional com este registro.")
             setErro(e.message)
         } finally {
             setSalvando(false)
@@ -76,11 +82,13 @@ export default function ModalNovoProfissional({ isOpen, onClose, onSalvo }) {
 
                 <div className="flex items-start justify-between p-6 border-b border-slate-100">
                     <div>
-                        <h2 className="text-xs font-bold tracking-widest text-cyan-800 uppercase">NOVO PROFISSIONAL</h2>
-                        <p className="text-xs text-slate-400 mt-0.5">Preencha as informações para iniciar o cadastro.</p>
+                        <h2 className="text-xs font-bold tracking-widest text-cyan-800 uppercase">{editando ? 'EDITAR PROFISSIONAL' : 'NOVO PROFISSIONAL'}</h2>
+                        <p className="text-xs text-slate-400 mt-0.5">
+                            {editando ? 'Altere as informações do profissional.' : 'Preencha as informações para iniciar o cadastro.'}
+                        </p>
                     </div>
                     <button type="button" onClick={fechar} className="text-slate-400 hover:text-slate-600 transition-colors cursor-pointer p-1">
-                        <X className="w-5 h-5" />
+                        <X className="w-5 h-5"/>
                     </button>
                 </div>
 
@@ -93,8 +101,8 @@ export default function ModalNovoProfissional({ isOpen, onClose, onSalvo }) {
                         </div>
                     </div>
 
-                    {/* O botão Salvar fica fora do <form>, por isso ele aponta para este id (atributo form) */}
-                    <form id="form-novo-profissional" onSubmit={salvar} className="space-y-4">
+                    {/* O botão Salvar fica fora do <form>, por isso ele aponta para este id */}
+                    <form id="form-profissional" onSubmit={salvar} className="space-y-4">
 
                         <div>
                             <label className={classeLabel}>Nome completo <span className="text-red-500">*</span></label>
@@ -108,12 +116,13 @@ export default function ModalNovoProfissional({ isOpen, onClose, onSalvo }) {
                             </div>
                             <div>
                                 <label className={classeLabel}>Categoria <span className="text-red-500">*</span></label>
-                                <select required value={form.categoria} onChange={trocarCategoria} className={classeInput}>
+                                <select required disabled={editando} value={form.categoria} onChange={trocarCategoria} className={`${classeInput} disabled:bg-slate-50 disabled:text-slate-400`}>
                                     <option value="">Selecione...</option>
                                     <option value="CLINICO_GERAL">Clínico geral</option>
                                     <option value="ESPECIALISTA">Médico especialista</option>
                                     <option value="CIRURGIAO">Cirurgião</option>
                                 </select>
+                                {editando && <p className="text-xs text-slate-400 mt-1">A categoria não pode ser alterada.</p>}
                             </div>
                         </div>
 
@@ -159,7 +168,7 @@ export default function ModalNovoProfissional({ isOpen, onClose, onSalvo }) {
 
                 <div className="p-5 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between">
                     <button type="button" onClick={fechar} className="px-5 py-2.5 text-sm font-semibold text-slate-700 bg-white border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer">Cancelar</button>
-                    <button type="submit" form="form-novo-profissional" disabled={salvando} className="px-5 py-2.5 text-sm font-semibold text-white bg-cyan-800 rounded-lg hover:bg-cyan-900 shadow-sm transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
+                    <button type="submit" form="form-profissional" disabled={salvando} className="px-5 py-2.5 text-sm font-semibold text-white bg-cyan-800 rounded-lg hover:bg-cyan-900 shadow-sm transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed">
                         {salvando ? 'Salvando...' : 'Salvar'}
                     </button>
                 </div>

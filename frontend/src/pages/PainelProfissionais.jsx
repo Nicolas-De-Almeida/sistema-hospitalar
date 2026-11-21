@@ -1,27 +1,67 @@
-import { Search, Plus, Clock, Pencil, ToggleRight } from 'lucide-react'
+import { Search, Plus, Clock, Pencil, ToggleRight, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 
 
 import { useDados } from '../hooks/useDados'
 import { useAcao } from '../hooks/useAcao'
-import { listarProfissionais, alterarStatusProfissional } from '../services/hospitalService'
+import { listarProfissionais, alterarStatusProfissional, excluirProfissional } from '../services/hospitalService'
 import { getIniciais } from '../utils/primeiraLetraMaiuscula'
 import { rotuloEspecialidade } from '../utils/rotulos'
 
 import LinhaEstado from '../components/LinhaEstado'
 import AvisoErro from '../components/AvisoErro'
-import ModalNovoProfissional from '../components/modals/ModalNovoProfissional'
-import ModalEditarProfissionais from '../components/modals/ModalEditarProfissionais'
+import ModalProfissional from '../components/modals/ModalProfissional'
+import ModalHorarios from '../components/modals/ModalHorarios'
+import ModalConfirmarExclusao from '../components/modals/ModalConfirmarExclusao'
 
 export default function PainelProfissionais() {
-    const [modalNovoProfissional, setModalNovoProfissional] = useState(false)
-    const [modalEditarProfissionais, setModalEditarProfissionais] = useState(false)
+    // Modal de cadastro/edição: aberto + qual profissional está sendo editado (null = novo)
+    const [modalProfissional, setModalProfissional] = useState(false)
+    const [profissionalEditando, setProfissionalEditando] = useState(null)
 
-
+    // Lista real de profissionais, vinda do back end
     const { dados: profissionais, carregando, erro, recarregar } = useDados(listarProfissionais)
+
+    // Guardas só o id e busca o profissional na lista atual
+    const [idHorarios, setIdHorarios] = useState(null)
+    const profissionalHorarios = profissionais.find((p) => p.id === idHorarios) ?? null
+
+     // Exclusão: guarda qual profissional está sendo excluído (null = modal fechado)
+    const [profissionalExcluindo, setProfissionalExcluindo] = useState(null)
+    const [excluindo, setExcluindo] = useState(false)
+    const [erroExclusao, setErroExclusao] = useState('')
+
+    function fecharExclusao() {
+        setProfissionalExcluindo(null)
+        setErroExclusao('')
+    }
+
+    async function confirmarExclusao() {
+        setExcluindo(true)
+        setErroExclusao('')
+        try {
+            await excluirProfissional(profissionalExcluindo.id)
+            await recarregar()
+            fecharExclusao()
+        } catch (e) {
+            // Profissional com consultas/internações não pode ser excluído
+            setErroExclusao(e.message)
+        } finally {
+            setExcluindo(false)
+        }
+    }
+    function abrirNovo() {
+        setProfissionalEditando(null)
+        setModalProfissional(true)
+    }
+
+    function abrirEdicao(prof) {
+        setProfissionalEditando(prof)
+        setModalProfissional(true)
+    }
     const { executar, ocupado, erroAcao } = useAcao(recarregar)
 
-    // Ativa ou desativa o profissional (pede confirmação)
+    // Ativa ou desativa o profissional
     function alternarStatus(prof) {
         const acao = prof.ativo ? 'desativar' : 'ativar'
         if (window.confirm(`Deseja ${acao} ${prof.nome}?`)) {
@@ -44,7 +84,7 @@ export default function PainelProfissionais() {
                     <span className="font-bold tracking-wider text-cyan-800 uppercase">EQUIPE DE PROFISSIONAIS</span>
                 </div>
 
-                <button onClick={() => setModalNovoProfissional(true)} className="flex items-center gap-2 bg-cyan-800 hover:bg-cyan-900 text-white font-semibold text-sm px-4 py-2.5 rounded-xl shadow-sm transition-colors cursor-pointer">
+                <button onClick={abrirNovo} className="flex items-center gap-2 bg-cyan-800 hover:bg-cyan-900 text-white font-semibold text-sm px-4 py-2.5 rounded-xl shadow-sm transition-colors cursor-pointer">
                     <Plus className="w-4 h-4" />
                     <span>Novo profissional</span>
                 </button>
@@ -125,14 +165,17 @@ export default function PainelProfissionais() {
                                     </td>
                                     <td className="py-3.5 px-5">
                                         <div className="flex items-center justify-end gap-2 text-slate-400">
-                                            <button className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Horários de Atendimento">
+                                            <button onClick={() => setIdHorarios(prof.id)} className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Horários de atendimento">
                                                 <Clock className="w-4 h-4" />
                                             </button>
-                                            <button onClick={() => setModalEditarProfissionais(true)} className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Editar">
+                                            <button onClick={() => abrirEdicao(prof)} className="hover:text-slate-700 p-1 transition-colors cursor-pointer" title="Editar">
                                                 <Pencil className="w-4 h-4" />
                                             </button>
                                             <button onClick={() => alternarStatus(prof)} disabled={ocupado} className="hover:text-slate-700 p-1 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed" title={prof.ativo ? 'Desativar' : 'Ativar'}>
                                                 <ToggleRight className="w-4 h-4" />
+                                            </button>
+                                            <button onClick={() => setProfissionalExcluindo(prof)} className="hover:text-red-600 p-1 transition-colors cursor-pointer" title="Excluir">
+                                                <Trash2 className="w-4 h-4" />
                                             </button>
                                         </div>
                                     </td>
@@ -142,9 +185,10 @@ export default function PainelProfissionais() {
                     </table>
                 </div>
             </div>
-            
-            <ModalNovoProfissional isOpen={modalNovoProfissional} onClose={() => setModalNovoProfissional(false)} onSalvo={recarregar}/>
-            <ModalEditarProfissionais isOpen={modalEditarProfissionais} onClose={() => setModalEditarProfissionais(false)}/>
+                
+            <ModalProfissional key={profissionalEditando?.id ?? 'novo'} isOpen={modalProfissional} onClose={() => setModalProfissional(false)} onSalvo={recarregar} profissional={profissionalEditando}/>
+            <ModalHorarios isOpen={profissionalHorarios !== null} onClose={() => setIdHorarios(null)} onSalvo={recarregar} profissional={profissionalHorarios}/>
+            <ModalConfirmarExclusao isOpen={profissionalExcluindo !== null} onClose={fecharExclusao} onConfirm={confirmarExclusao} titulo="Excluir profissional?" mensagem={`Você tem certeza que deseja excluir ${profissionalExcluindo?.nome ?? 'este profissional'}?`} erro={erroExclusao} excluindo={excluindo}/>
         </div>
     )
 }
