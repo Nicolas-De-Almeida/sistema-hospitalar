@@ -94,6 +94,18 @@ public class ProfissionalService {
         return ProfissionalResponse.de(profissionalRepository.saveAndFlush(profissional));
     }
 
+    // Regra: o histórico não pode ser perdido. Só dá para excluir quem nunca teve atendimento nem internação.
+    // Para quem tem algo, o caminho é desativar.
+    @Transactional
+    public void excluir(Long id) {
+        ProfissionalSaude profissional = buscarEntidade(id);
+        if (!profissional.getAtendimentos().isEmpty() || profissionalRepository.possuiInternacoes(id)) {
+            throw new ConflitoException(
+                    "Não é possível excluir um profissional que já possui atendimentos ou internações registrados. Desative-o em vez de excluir.");
+        }
+        profissionalRepository.delete(profissional);
+    }
+
     @Transactional
     public DisponibilidadeResponse adicionarDisponibilidade(Long id, DisponibilidadeRequest request) {
         ProfissionalSaude profissional = buscarEntidade(id);

@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
 
 import java.time.DayOfWeek;
 import java.time.LocalTime;
@@ -32,6 +33,7 @@ import trabalhoPratico.sistemaHospitalar.model.MedicoEspecialista;
 import trabalhoPratico.sistemaHospitalar.model.ProfissionalSaude;
 import trabalhoPratico.sistemaHospitalar.model.enums.CategoriaProfissional;
 import trabalhoPratico.sistemaHospitalar.model.enums.Especialidade;
+import trabalhoPratico.sistemaHospitalar.model.Atendimento;
 import trabalhoPratico.sistemaHospitalar.repository.DisponibilidadeAtendimentoRepository;
 import trabalhoPratico.sistemaHospitalar.repository.ProfissionalSaudeRepository;
 
@@ -111,6 +113,42 @@ class ProfissionalServiceTest {
 
         assertEquals(1, resposta.size());
         assertEquals("Ana Lima", resposta.getFirst().nome());
+    }
+
+        @Test
+    void excluiProfissionalSemHistorico() {
+        MedicoEspecialista profissional = especialista();
+        when(repository.findById(1L)).thenReturn(Optional.of(profissional));
+
+        service.excluir(1L);
+
+        verify(repository).delete(profissional);
+    }
+
+    @Test
+    void naoExcluiProfissionalComAtendimentos() {
+        ProfissionalSaude profissional = mock(ProfissionalSaude.class);
+        when(profissional.getAtendimentos()).thenReturn(List.of(mock(Atendimento.class)));
+        when(repository.findById(1L)).thenReturn(Optional.of(profissional));
+
+        assertThrows(ConflitoException.class, () -> service.excluir(1L));
+        verify(repository, never()).delete(any(ProfissionalSaude.class));
+    }
+
+    @Test
+    void naoExcluiProfissionalComInternacoes() {
+        when(repository.findById(1L)).thenReturn(Optional.of(especialista()));
+        when(repository.possuiInternacoes(1L)).thenReturn(true);
+
+        assertThrows(ConflitoException.class, () -> service.excluir(1L));
+        verify(repository, never()).delete(any(ProfissionalSaude.class));
+    }
+
+    @Test
+    void informaQuandoExcluirProfissionalQueNaoExiste() {
+        when(repository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(RecursoNaoEncontradoException.class, () -> service.excluir(99L));
     }
     
     @Test

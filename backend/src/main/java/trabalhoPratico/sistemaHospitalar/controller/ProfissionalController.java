@@ -61,7 +61,7 @@ public class ProfissionalController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime horario) {
         return ResponseEntity.ok(profissionalService.listarDisponiveis(especialidade, data, horario));
     }
-    
+
     @GetMapping("/{id}")
     public ResponseEntity<ProfissionalResponse> buscarPorId(@PathVariable Long id) {
         return ResponseEntity.ok(profissionalService.buscarPorId(id));
@@ -72,6 +72,12 @@ public class ProfissionalController {
             @PathVariable Long id,
             @Valid @RequestBody ProfissionalRequest request) {
         return ResponseEntity.ok(profissionalService.atualizar(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        profissionalService.excluir(id);
+        return ResponseEntity.noContent().build();
     }
 
     @PatchMapping("/{id}/status")

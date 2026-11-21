@@ -3,6 +3,8 @@ package trabalhoPratico.sistemaHospitalar.controller;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.doThrow;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -154,6 +156,22 @@ class ProfissionalControllerTest {
                 Especialidade.CARDIOLOGIA, LocalDate.of(2026, 11, 23), LocalTime.of(9, 0));
     }
     
+    @Test
+    void exclusaoValidaRetorna204() throws Exception {
+        mockMvc.perform(delete("/api/profissionais/1"))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void exclusaoDeProfissionalComHistoricoRetorna409() throws Exception {
+        doThrow(new ConflitoException("Não é possível excluir um profissional que já possui atendimentos ou internações registrados."))
+                .when(profissionalService).excluir(1L);
+
+        mockMvc.perform(delete("/api/profissionais/1"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.mensagem").value("Não é possível excluir um profissional que já possui atendimentos ou internações registrados."));
+    }
+
     private static ProfissionalResponse responsePadrao() {
         return new ProfissionalResponse(
                 1L, "Carlos Souza", "31999990000", "carlos@hospital.com", "CRM-MG 100",
