@@ -1,6 +1,8 @@
 import { useState } from 'react'
-import { Plus, Pencil, LogOut } from 'lucide-react'
+import { Plus, Pencil, LogOut, ArrowRightLeft } from 'lucide-react'
 import ModalNovaInternacao from '../components/modals/ModalNovaInternacao'
+import ModalEditarInternacao from '../components/modals/ModalEditarInternacao'
+import ModalTransferirInternacao from '../components/modals/ModalTransferirInternacao'
 import LinhaEstado from '../components/LinhaEstado'
 import BadgeStatus from '../components/BadgeStatus'
 import BotaoAcao from '../components/BotaoAcao'
@@ -14,6 +16,10 @@ import { formatarData, dataHojeISO, estiloStatusInternacao } from '../utils/rotu
 
 export default function GestaoInternacoes() {
     const [modalNovaInternacao, setModalNovaInternacao] = useState(false)
+    // Internação que está sendo editada (null = modal fechado)
+    const [internacaoEditando, setInternacaoEditando] = useState(null)
+    // Internação cujo paciente está sendo movido de quarto (null = modal fechado)
+    const [internacaoMovendo, setInternacaoMovendo] = useState(null)
 
     // Lista de internações
     const { dados: internacoes, carregando, erro, recarregar } = useDados(listarInternacoes)
@@ -34,12 +40,12 @@ export default function GestaoInternacoes() {
                 </div>
 
                 <button onClick={() => setModalNovaInternacao(true)} className="flex items-center gap-2 bg-cyan-800 hover:bg-cyan-900 text-white font-semibold text-sm px-4 py-2.5 rounded-xl shadow-sm transition-colors cursor-pointer">
-                    <Plus className="w-4 h-4" />
+                    <Plus className="w-4 h-4"/>
                     <span>Nova internação</span>
                 </button>
             </div>
 
-            <AvisoErro mensagem={erroAcao} />
+            <AvisoErro mensagem={erroAcao}/>
 
             <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
                 <div className="p-5 border-b border-slate-100">
@@ -88,11 +94,14 @@ export default function GestaoInternacoes() {
                                     </td>
                                     <td className="py-3.5 px-5">
                                         <div className="flex items-center justify-end gap-2 text-slate-400">
-                                            {/* Só dá para editar e dar alta em internação ativa */}
+                                            {/* Só dá para editar, mover e dar alta em internação ativa */}
                                             {internacao.status === 'ATIVA' && (
                                                 <>
-                                                    <BotaoAcao titulo="Editar internação">
+                                                    <BotaoAcao titulo="Editar internação" onClick={() => setInternacaoEditando(internacao)}>
                                                         <Pencil className="w-4 h-4" />
+                                                    </BotaoAcao>
+                                                    <BotaoAcao titulo="Mover de quarto" onClick={() => setInternacaoMovendo(internacao)}>
+                                                        <ArrowRightLeft className="w-4 h-4" />
                                                     </BotaoAcao>
                                                     <BotaoAcao titulo="Dar alta" desabilitado={ocupado} onClick={() => darAlta(internacao)}>
                                                         <LogOut className="w-4 h-4" />
@@ -109,6 +118,20 @@ export default function GestaoInternacoes() {
             </div>
 
             <ModalNovaInternacao isOpen={modalNovaInternacao} onClose={() => setModalNovaInternacao(false)} onSalvo={recarregar} />
+
+            <ModalEditarInternacao
+                key={`editar-${internacaoEditando?.id ?? 'nenhuma'}`}
+                isOpen={internacaoEditando !== null}
+                onClose={() => setInternacaoEditando(null)}
+                onSalvo={recarregar}
+                internacao={internacaoEditando}/>
+
+            <ModalTransferirInternacao
+                key={`mover-${internacaoMovendo?.id ?? 'nenhuma'}`}
+                isOpen={internacaoMovendo !== null}
+                onClose={() => setInternacaoMovendo(null)}
+                onSalvo={recarregar}
+                internacao={internacaoMovendo}/>
         </div>
     )
 }

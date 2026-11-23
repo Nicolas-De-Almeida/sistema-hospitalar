@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Plus, CheckCheck, Play, CircleCheck, CalendarClock, Ban, UserX } from 'lucide-react'
 import ModalAgendarConsulta from '../components/modals/ModalAgendarConsulta'
+import ModalRemarcarConsulta from '../components/modals/ModalRemarcarConsulta'
 import LinhaEstado from '../components/LinhaEstado'
 import BadgeStatus from '../components/BadgeStatus'
 import BotaoAcao from '../components/BotaoAcao'
@@ -21,6 +22,8 @@ import { formatarData, formatarHora, estiloStatusConsulta } from '../utils/rotul
 
 export default function GestaoConsultas() {
     const [modalNovaConsulta, setModalNovaConsulta] = useState(false)
+    // Consulta que está sendo remarcada (null = modal fechado)
+    const [consultaRemarcando, setConsultaRemarcando] = useState(null)
 
     // Lista de consultas
     const { dados: consultas, carregando, erro, recarregar } = useDados(listarConsultas)
@@ -118,7 +121,7 @@ export default function GestaoConsultas() {
                                                     <BotaoAcao titulo="Iniciar atendimento" desabilitado={ocupado} onClick={() => executar(() => iniciarConsulta(consulta.id))}>
                                                         <Play className="w-4 h-4" />
                                                     </BotaoAcao>
-                                                    <BotaoAcao titulo="Remarcar">
+                                                    <BotaoAcao titulo="Remarcar" onClick={() => setConsultaRemarcando(consulta)}>
                                                         <CalendarClock className="w-4 h-4" />
                                                     </BotaoAcao>
                                                     <BotaoAcao titulo="Registrar falta" desabilitado={ocupado} onClick={() => registrarFalta(consulta)}>
@@ -142,8 +145,12 @@ export default function GestaoConsultas() {
                     </table>
                 </div>
             </div>
-
-            <ModalAgendarConsulta isOpen={modalNovaConsulta} onClose={() => setModalNovaConsulta(false)} onSalvo={recarregar} />
+            <ModalRemarcarConsulta
+                key={consultaRemarcando?.id ?? 'nenhuma'}
+                isOpen={consultaRemarcando !== null}
+                onClose={() => setConsultaRemarcando(null)}
+                onSalvo={recarregar}
+                consulta={consultaRemarcando}/>
         </div>
     )
 }
