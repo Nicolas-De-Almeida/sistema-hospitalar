@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
 
-// Igual ao useDados, mas só busca quando "aberto" fica true (ex.: quando um modal abre).
+// Igual ao useDados, mas só busca quando "aberto" fica true (ex: quando um modal abre).
 // Assim a lista está sempre atualizada (um quarto que acabou de lotar não aparece mais)
 export function useDadosAoAbrir(aberto, buscar) {
     const [dados, setDados] = useState([])
     const [carregando, setCarregando] = useState(false)
     const [erro, setErro] = useState('')
+    const [versao, setVersao] = useState(0)
 
     useEffect(() => {
         if (!aberto) return
@@ -21,7 +22,9 @@ export function useDadosAoAbrir(aberto, buscar) {
 
         // Se o modal fechar antes da resposta chegar, ignora a resposta
         return () => { cancelado = true }
-    }, [aberto, buscar])
+    }, [aberto, buscar, versao])
 
-    return { dados, carregando, erro }
+    const recarregar = () => setVersao((v) => v + 1)
+
+    return { dados, carregando, erro, recarregar }
 }

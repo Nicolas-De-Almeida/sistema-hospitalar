@@ -77,3 +77,16 @@ export function estiloStatusConsulta(status) {
 export function estiloStatusInternacao(status) {
     return STATUS_INTERNACAO[status] || { ...PADRAO, texto: status }
 }
+
+
+// Tipos de quarto (limite de leitos que o tipo permite)
+export const TIPOS_QUARTO = {
+    ENFERMARIA: { texto: 'Enfermaria', limite: 6 },
+    APARTAMENTO: { texto: 'Apartamento', limite: 2 },
+    UTI: { texto: 'UTI', limite: 1 },
+    ISOLAMENTO: { texto: 'Isolamento', limite: 1 },
+}
+
+export function rotuloTipoQuarto(valor) {
+    return TIPOS_QUARTO[valor]?.texto ?? valor ?? '-'
+}

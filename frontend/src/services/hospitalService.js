@@ -44,17 +44,27 @@ export const excluirProfissional = (id) => api(`/profissionais/${id}`, { method:
 export const buscarHistoricoPaciente = (id) => api(`/pacientes/${id}/historico`)
 
 
-//  Agendamentos e internações
+//  Consultas
 export const agendarConsulta = (dados) => post('/consultas', dados)
+export const remarcarConsulta = (id, dados) => patch(`/consultas/${id}/remarcar`, dados)
+
+//  Internações
 export const criarInternacao = (dados) => post('/internacoes', dados)
+export const atualizarInternacao = (id, dados) => put(`/internacoes/${id}`, dados)
+export const transferirInternacao = (id, quartoId) => patch(`/internacoes/${id}/quarto`, { quartoId })
+
+//  Quartos
+export const cadastrarQuarto = (dados) => post('/quartos', dados)
+export const atualizarQuarto = (id, dados) => put(`/quartos/${id}`, dados)
 export const listarQuartosDisponiveis = () => api('/quartos/disponiveis')
+export const excluirQuarto = (id) => api(`/quartos/${id}`, { method: 'DELETE' })
 
 // Profissionais da especialidade que podem atender na data e horário
 export const listarProfissionaisDisponiveis = (especialidade, data, horario) =>
     api(`/profissionais/disponiveis?${new URLSearchParams({ especialidade, data, horario })}`)
 
-
 // Horários de atendimento do profissional
 export const adicionarHorario = (profissionalId, dados) => post(`/profissionais/${profissionalId}/disponibilidades`, dados)
 export const removerHorario = (profissionalId, horarioId) =>
     api(`/profissionais/${profissionalId}/disponibilidades/${horarioId}`, { method: 'DELETE' })
+
