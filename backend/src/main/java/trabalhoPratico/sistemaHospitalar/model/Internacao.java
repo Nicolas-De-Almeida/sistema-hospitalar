@@ -92,6 +92,22 @@ public class Internacao {
         this.status = StatusInternacao.ENCERRADA;
     }
 
+    // Move o paciente para outro quarto (é a mesma internação, só muda o quarto).
+    // Confere tudo ANTES de mexer e se o novo quarto não servir, nada muda.
+    public void transferirPara(Quarto novoQuarto) {
+        exigir(novoQuarto, "novo quarto");
+        if (status != StatusInternacao.ATIVA) {
+            throw new RegraDeNegocioException("Só é possível transferir uma internação ativa.");
+        }
+        if (novoQuarto.equals(quarto)) {
+            throw new RegraDeNegocioException("O paciente já está no quarto " + quarto.getNumero() + ".");
+        }
+        Quarto quartoAntigo = quarto;
+        novoQuarto.registrarInternacao(this); // confere a vaga e adiciona
+        quartoAntigo.removerInternacao(this);
+        this.quarto = novoQuarto;
+    }
+
     public boolean estaAtiva() {
         return status == StatusInternacao.ATIVA;
     }

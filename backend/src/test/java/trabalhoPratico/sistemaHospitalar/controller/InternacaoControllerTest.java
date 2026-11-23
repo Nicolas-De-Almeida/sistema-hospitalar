@@ -28,7 +28,7 @@ import trabalhoPratico.sistemaHospitalar.exception.RecursoNaoEncontradoException
 import trabalhoPratico.sistemaHospitalar.exception.RegraDeNegocioException;
 import trabalhoPratico.sistemaHospitalar.model.enums.StatusInternacao;
 import trabalhoPratico.sistemaHospitalar.service.InternacaoService;
-
+import trabalhoPratico.sistemaHospitalar.dto.TransferenciaInternacaoRequest;
 @WebMvcTest(InternacaoController.class)
 class InternacaoControllerTest {
 
@@ -126,6 +126,26 @@ class InternacaoControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("ENCERRADA"))
                 .andExpect(jsonPath("$.dataEfetivaAlta").value("2026-11-12"));
+    }
+    
+        @Test
+    void transfereInternacaoParaOutroQuarto() throws Exception {
+        when(internacaoService.transferir(any(Long.class), any(TransferenciaInternacaoRequest.class)))
+                .thenReturn(responseAtiva());
+
+        mockMvc.perform(patch("/api/internacoes/10/quarto")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"quartoId\":4}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("ATIVA"));
+    }
+
+    @Test
+    void transferenciaSemQuartoRetorna400() throws Exception {
+        mockMvc.perform(patch("/api/internacoes/10/quarto")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{}"))
+                .andExpect(status().isBadRequest());
     }
 
     private static InternacaoResponse responseAtiva() {

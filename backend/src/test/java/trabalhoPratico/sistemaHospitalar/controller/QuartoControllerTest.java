@@ -2,12 +2,14 @@ package trabalhoPratico.sistemaHospitalar.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 import java.util.List;
 
@@ -104,6 +106,22 @@ class QuartoControllerTest {
                         .content(JSON_VALIDO))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.tipo").value("APARTAMENTO"));
+    }
+
+    @Test
+    void exclusaoValidaRetorna204() throws Exception {
+        mockMvc.perform(delete("/api/quartos/1"))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void exclusaoDeQuartoComHistoricoRetorna409() throws Exception {
+        doThrow(new ConflitoException("Não é possível excluir um quarto que já teve internações registradas."))
+                .when(quartoService).excluir(1L);
+
+        mockMvc.perform(delete("/api/quartos/1"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.mensagem").value("Não é possível excluir um quarto que já teve internações registradas."));
     }
 
     private static QuartoResponse responsePadrao() {

@@ -19,6 +19,7 @@ import trabalhoPratico.sistemaHospitalar.repository.InternacaoRepository;
 import trabalhoPratico.sistemaHospitalar.repository.PacienteRepository;
 import trabalhoPratico.sistemaHospitalar.repository.ProfissionalSaudeRepository;
 import trabalhoPratico.sistemaHospitalar.repository.QuartoRepository;
+import trabalhoPratico.sistemaHospitalar.dto.TransferenciaInternacaoRequest;
 
 @Service
 public class InternacaoService {
@@ -82,6 +83,16 @@ public class InternacaoService {
         return InternacaoResponse.de(internacaoRepository.saveAndFlush(internacao));
     }
 
+    @Transactional
+    public InternacaoResponse transferir(Long id, TransferenciaInternacaoRequest request) {
+        Internacao internacao = buscarEntidade(id);
+        Quarto novoQuarto = quartoRepository.findById(request.quartoId())
+                .orElseThrow(() -> new RecursoNaoEncontradoException(
+                        "Quarto não encontrado: " + request.quartoId() + "."));
+        internacao.transferirPara(novoQuarto);
+        return InternacaoResponse.de(internacaoRepository.saveAndFlush(internacao));
+    }
+    
     @Transactional
     public InternacaoResponse darAlta(Long id, AltaInternacaoRequest request) {
         Internacao internacao = buscarEntidade(id);

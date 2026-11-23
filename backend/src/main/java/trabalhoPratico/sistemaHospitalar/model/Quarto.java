@@ -71,6 +71,11 @@ public class Quarto {
         internacoes.add(internacao);
     }
 
+    // Chamado pela Internacao quando o paciente é transferido para outro quarto
+    void removerInternacao(Internacao internacao) {
+        internacoes.remove(internacao);
+    }
+
     private void validarCapacidade(int capacidade, TipoQuarto tipoDoQuarto) {
         if (capacidade < 1) {
             throw new RegraDeNegocioException("A capacidade do quarto deve ser de pelo menos 1 paciente.");

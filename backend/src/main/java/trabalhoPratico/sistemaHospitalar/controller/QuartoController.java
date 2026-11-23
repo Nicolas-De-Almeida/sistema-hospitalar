@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import jakarta.validation.Valid;
 import trabalhoPratico.sistemaHospitalar.dto.QuartoRequest;
@@ -58,5 +59,11 @@ public class QuartoController {
             @PathVariable Long id,
             @Valid @RequestBody QuartoRequest request) {
         return ResponseEntity.ok(quartoService.atualizar(id, request));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> excluir(@PathVariable Long id) {
+        quartoService.excluir(id);
+        return ResponseEntity.noContent().build();
     }
 }

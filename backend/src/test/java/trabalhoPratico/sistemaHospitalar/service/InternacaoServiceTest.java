@@ -33,6 +33,7 @@ import trabalhoPratico.sistemaHospitalar.repository.InternacaoRepository;
 import trabalhoPratico.sistemaHospitalar.repository.PacienteRepository;
 import trabalhoPratico.sistemaHospitalar.repository.ProfissionalSaudeRepository;
 import trabalhoPratico.sistemaHospitalar.repository.QuartoRepository;
+import trabalhoPratico.sistemaHospitalar.dto.TransferenciaInternacaoRequest;
 
 class InternacaoServiceTest {
 
@@ -174,6 +175,71 @@ class InternacaoServiceTest {
 
         assertThrows(RegraDeNegocioException.class, () -> service.atualizar(
                 1L, new AtualizacaoInternacaoRequest(LocalDate.now().plusDays(5), "Alteração")));
+    }
+
+    @Test
+    void transfereInternacaoParaOutroQuarto() {
+        Internacao internacao = internacaoAtiva();
+        Quarto quartoAntigo = internacao.getQuarto();
+        Quarto novoQuarto = new Quarto("102", 1, 2, TipoQuarto.APARTAMENTO);
+        when(internacaoRepository.findById(1L)).thenReturn(Optional.of(internacao));
+        when(quartoRepository.findById(5L)).thenReturn(Optional.of(novoQuarto));
+
+        InternacaoResponse resposta = service.transferir(1L, new TransferenciaInternacaoRequest(5L));
+
+        assertEquals("102", resposta.quartoNumero());
+        assertEquals(0, quartoAntigo.ocupacaoAtual());
+        assertEquals(1, novoQuarto.ocupacaoAtual());
+    }
+
+    @Test
+    void rejeitaTransferenciaParaQuartoLotadoSemMudarNada() {
+        Internacao internacao = internacaoAtiva();
+        Quarto quartoAntigo = internacao.getQuarto();
+        Quarto quartoCheio = new Quarto("UTI-01", 2, 1, TipoQuarto.UTI);
+        new Internacao(
+                paciente("22222222222", "Outro Paciente"), profissional(), quartoCheio,
+                LocalDate.now(), LocalDate.now().plusDays(2), null);
+        when(internacaoRepository.findById(1L)).thenReturn(Optional.of(internacao));
+        when(quartoRepository.findById(5L)).thenReturn(Optional.of(quartoCheio));
+
+        assertThrows(RegraDeNegocioException.class,
+                () -> service.transferir(1L, new TransferenciaInternacaoRequest(5L)));
+
+        assertEquals(quartoAntigo, internacao.getQuarto());
+        assertEquals(1, quartoAntigo.ocupacaoAtual());
+        assertEquals(1, quartoCheio.ocupacaoAtual());
+    }
+
+    @Test
+    void rejeitaTransferenciaParaOMesmoQuarto() {
+        Internacao internacao = internacaoAtiva();
+        when(internacaoRepository.findById(1L)).thenReturn(Optional.of(internacao));
+        when(quartoRepository.findById(5L)).thenReturn(Optional.of(internacao.getQuarto()));
+
+        assertThrows(RegraDeNegocioException.class,
+                () -> service.transferir(1L, new TransferenciaInternacaoRequest(5L)));
+    }
+
+    @Test
+    void rejeitaTransferenciaDeInternacaoEncerrada() {
+        Internacao internacao = internacaoAtiva();
+        internacao.darAlta(LocalDate.now().plusDays(1));
+        Quarto novoQuarto = new Quarto("102", 1, 2, TipoQuarto.APARTAMENTO);
+        when(internacaoRepository.findById(1L)).thenReturn(Optional.of(internacao));
+        when(quartoRepository.findById(5L)).thenReturn(Optional.of(novoQuarto));
+
+        assertThrows(RegraDeNegocioException.class,
+                () -> service.transferir(1L, new TransferenciaInternacaoRequest(5L)));
+    }
+
+    @Test
+    void informaQuandoNovoQuartoNaoExiste() {
+        when(internacaoRepository.findById(1L)).thenReturn(Optional.of(internacaoAtiva()));
+        when(quartoRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(RecursoNaoEncontradoException.class,
+                () -> service.transferir(1L, new TransferenciaInternacaoRequest(99L)));
     }
 
     private void prepararAssociacoes(

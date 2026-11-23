@@ -59,6 +59,16 @@ public class QuartoService {
         return QuartoResponse.de(quartoRepository.saveAndFlush(quarto));
     }
 
+    // Só dá para excluir um quarto que nunca recebeu internação (nem ativa, nem encerrada).
+    @Transactional
+    public void excluir(Long id) {
+        Quarto quarto = buscarEntidade(id);
+        if (!quarto.getInternacoes().isEmpty()) {
+            throw new ConflitoException("Não é possível excluir um quarto que já teve internações registradas.");
+        }
+        quartoRepository.delete(quarto);
+    }
+
     private Quarto buscarEntidade(Long id) {
         return quartoRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEncontradoException("Quarto não encontrado: " + id + "."));

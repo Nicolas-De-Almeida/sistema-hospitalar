@@ -22,6 +22,7 @@ import trabalhoPratico.sistemaHospitalar.dto.InternacaoRequest;
 import trabalhoPratico.sistemaHospitalar.dto.InternacaoResponse;
 import trabalhoPratico.sistemaHospitalar.model.enums.StatusInternacao;
 import trabalhoPratico.sistemaHospitalar.service.InternacaoService;
+import trabalhoPratico.sistemaHospitalar.dto.TransferenciaInternacaoRequest;
 
 @RestController
 @RequestMapping("/api/internacoes")
@@ -61,6 +62,13 @@ public class InternacaoController {
         return ResponseEntity.ok(internacaoService.atualizar(id, request));
     }
 
+    @PatchMapping("/{id}/quarto")
+    public ResponseEntity<InternacaoResponse> transferir(
+            @PathVariable Long id,
+            @Valid @RequestBody TransferenciaInternacaoRequest request) {
+        return ResponseEntity.ok(internacaoService.transferir(id, request));
+    }
+    
     @PatchMapping("/{id}/alta")
     public ResponseEntity<InternacaoResponse> darAlta(
             @PathVariable Long id,

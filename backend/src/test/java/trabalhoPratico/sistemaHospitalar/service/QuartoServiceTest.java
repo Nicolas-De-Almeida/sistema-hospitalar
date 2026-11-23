@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.never;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -121,6 +122,31 @@ class QuartoServiceTest {
         assertEquals(1, resposta.ocupacaoAtual());
         assertEquals(0, resposta.vagasDisponiveis());
         assertEquals(SituacaoQuarto.OCUPADO, resposta.situacao());
+    }
+
+    @Test
+    void excluiQuartoSemInternacoes() {
+        Quarto quarto = new Quarto("101", 1, 2, TipoQuarto.APARTAMENTO);
+        when(repository.findById(1L)).thenReturn(Optional.of(quarto));
+
+        service.excluir(1L);
+
+        verify(repository).delete(quarto);
+    }
+
+    @Test
+    void naoExcluiQuartoQueJaTeveInternacoes() {
+        when(repository.findById(1L)).thenReturn(Optional.of(quartoOcupado()));
+
+        assertThrows(ConflitoException.class, () -> service.excluir(1L));
+        verify(repository, never()).delete(any(Quarto.class));
+    }
+
+    @Test
+    void informaQuandoExcluirQuartoQueNaoExiste() {
+        when(repository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(RecursoNaoEncontradoException.class, () -> service.excluir(99L));
     }
 
     private static Quarto quartoOcupado() {
