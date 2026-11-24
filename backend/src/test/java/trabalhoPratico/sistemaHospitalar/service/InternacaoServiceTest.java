@@ -1,5 +1,6 @@
 package trabalhoPratico.sistemaHospitalar.service;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -16,6 +17,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import trabalhoPratico.sistemaHospitalar.dto.TransferenciaResponse;
 import trabalhoPratico.sistemaHospitalar.dto.AltaInternacaoRequest;
 import trabalhoPratico.sistemaHospitalar.dto.AtualizacaoInternacaoRequest;
 import trabalhoPratico.sistemaHospitalar.dto.InternacaoRequest;
@@ -242,6 +244,29 @@ class InternacaoServiceTest {
                 () -> service.transferir(1L, new TransferenciaInternacaoRequest(99L)));
     }
 
+    @Test
+    void registraHistoricoDaTransferencia() {
+        Internacao internacao = internacaoAtiva();
+        Quarto novoQuarto = new Quarto("102", 1, 2, TipoQuarto.APARTAMENTO);
+        when(internacaoRepository.findById(1L)).thenReturn(Optional.of(internacao));
+        when(quartoRepository.findById(5L)).thenReturn(Optional.of(novoQuarto));
+
+        service.transferir(1L, new TransferenciaInternacaoRequest(5L));
+        List<TransferenciaResponse> historico = service.listarTransferencias(1L);
+
+        assertEquals(1, historico.size());
+        assertEquals("101", historico.getFirst().quartoOrigemNumero());
+        assertEquals("102", historico.getFirst().quartoDestinoNumero());
+        assertNotNull(historico.getFirst().dataHora());
+    }
+
+    @Test
+    void internacaoSemTrocasTemHistoricoVazio() {
+        when(internacaoRepository.findById(1L)).thenReturn(Optional.of(internacaoAtiva()));
+
+        assertTrue(service.listarTransferencias(1L).isEmpty());
+    }
+
     private void prepararAssociacoes(
             Paciente paciente, MedicoClinicoGeral profissional, Quarto quarto) {
         when(pacienteRepository.findById(1L)).thenReturn(Optional.of(paciente));
@@ -281,4 +306,6 @@ class InternacaoServiceTest {
         return new MedicoClinicoGeral(
                 "Carlos Souza", "31999990000", "carlos@hospital.com", "CRM-MG 100");
     }
+
+
 }

@@ -143,6 +143,16 @@ class QuartoServiceTest {
     }
 
     @Test
+    void naoExcluiQuartoQueParticipouDeTrocaDePaciente() {
+        Quarto quarto = new Quarto("101", 1, 2, TipoQuarto.APARTAMENTO);
+        when(repository.findById(1L)).thenReturn(Optional.of(quarto));
+        when(repository.possuiTransferencias(1L)).thenReturn(true);
+
+        assertThrows(ConflitoException.class, () -> service.excluir(1L));
+        verify(repository, never()).delete(any(Quarto.class));
+    }
+    
+    @Test
     void informaQuandoExcluirQuartoQueNaoExiste() {
         when(repository.findById(99L)).thenReturn(Optional.empty());
 

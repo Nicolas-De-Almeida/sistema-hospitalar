@@ -3,6 +3,9 @@ package trabalhoPratico.sistemaHospitalar.model;
 import static trabalhoPratico.sistemaHospitalar.util.Validacao.exigir;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import jakarta.persistence.*;
 import trabalhoPratico.sistemaHospitalar.exception.RegraDeNegocioException;
@@ -45,6 +48,11 @@ public class Internacao {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 15)
     private StatusInternacao status = StatusInternacao.ATIVA;
+
+    // Histórico de trocas de quarto, da mais antiga para a mais recente
+    @OneToMany(mappedBy = "internacao", cascade = CascadeType.ALL)
+    @OrderBy("dataHora ASC, id ASC")
+    private List<TransferenciaQuarto> transferencias = new ArrayList<>();
 
     protected Internacao() {
     }
@@ -106,6 +114,7 @@ public class Internacao {
         novoQuarto.registrarInternacao(this); // confere a vaga e adiciona
         quartoAntigo.removerInternacao(this);
         this.quarto = novoQuarto;
+        transferencias.add(new TransferenciaQuarto(this, quartoAntigo, novoQuarto));
     }
 
     public boolean estaAtiva() {
@@ -163,5 +172,9 @@ public class Internacao {
 
     public StatusInternacao getStatus() {
         return status;
+    }
+    
+    public List<TransferenciaQuarto> getTransferencias() {
+        return Collections.unmodifiableList(transferencias);
     }
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import trabalhoPratico.sistemaHospitalar.dto.TransferenciaResponse;
 import trabalhoPratico.sistemaHospitalar.dto.AltaInternacaoRequest;
 import trabalhoPratico.sistemaHospitalar.dto.AtualizacaoInternacaoRequest;
 import trabalhoPratico.sistemaHospitalar.dto.InternacaoRequest;
@@ -81,6 +82,14 @@ public class InternacaoService {
         internacao.setDataPrevistaAlta(request.dataPrevistaAlta());
         internacao.setObservacoes(request.observacoes());
         return InternacaoResponse.de(internacaoRepository.saveAndFlush(internacao));
+    }
+
+    // Histórico de trocas de quarto da internação, da mais antiga para a mais recente
+    @Transactional(readOnly = true)
+    public List<TransferenciaResponse> listarTransferencias(Long id) {
+        return buscarEntidade(id).getTransferencias().stream()
+                .map(TransferenciaResponse::de)
+                .toList();
     }
 
     @Transactional

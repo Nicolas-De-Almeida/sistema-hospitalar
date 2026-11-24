@@ -12,6 +12,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 import java.util.List;
+import java.time.LocalDateTime;
+
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import trabalhoPratico.sistemaHospitalar.dto.TransferenciaResponse;
 import trabalhoPratico.sistemaHospitalar.dto.AltaInternacaoRequest;
 import trabalhoPratico.sistemaHospitalar.dto.AtualizacaoInternacaoRequest;
 import trabalhoPratico.sistemaHospitalar.dto.InternacaoRequest;
@@ -127,7 +130,7 @@ class InternacaoControllerTest {
                 .andExpect(jsonPath("$.status").value("ENCERRADA"))
                 .andExpect(jsonPath("$.dataEfetivaAlta").value("2026-11-12"));
     }
-    
+
         @Test
     void transfereInternacaoParaOutroQuarto() throws Exception {
         when(internacaoService.transferir(any(Long.class), any(TransferenciaInternacaoRequest.class)))
@@ -146,6 +149,17 @@ class InternacaoControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void listaHistoricoDeTrocasDeQuarto() throws Exception {
+        when(internacaoService.listarTransferencias(10L)).thenReturn(List.of(
+                new TransferenciaResponse(1L, 3L, "101", 4L, "102", LocalDateTime.of(2026, 11, 23, 10, 30))));
+
+        mockMvc.perform(get("/api/internacoes/10/transferencias"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].quartoOrigemNumero").value("101"))
+                .andExpect(jsonPath("$[0].quartoDestinoNumero").value("102"));
     }
 
     private static InternacaoResponse responseAtiva() {

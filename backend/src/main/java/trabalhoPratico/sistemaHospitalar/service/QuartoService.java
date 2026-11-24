@@ -63,8 +63,8 @@ public class QuartoService {
     @Transactional
     public void excluir(Long id) {
         Quarto quarto = buscarEntidade(id);
-        if (!quarto.getInternacoes().isEmpty()) {
-            throw new ConflitoException("Não é possível excluir um quarto que já teve internações registradas.");
+        if (!quarto.getInternacoes().isEmpty() || quartoRepository.possuiTransferencias(id)) {
+            throw new ConflitoException("Não é possível excluir um quarto que já teve internações ou trocas de paciente registradas.");
         }
         quartoRepository.delete(quarto);
     }

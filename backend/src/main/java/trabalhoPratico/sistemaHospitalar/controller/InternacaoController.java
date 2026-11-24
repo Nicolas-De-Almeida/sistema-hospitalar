@@ -3,6 +3,7 @@ package trabalhoPratico.sistemaHospitalar.controller;
 import java.net.URI;
 import java.util.List;
 
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import jakarta.validation.Valid;
+import trabalhoPratico.sistemaHospitalar.dto.TransferenciaResponse;
 import trabalhoPratico.sistemaHospitalar.dto.AltaInternacaoRequest;
 import trabalhoPratico.sistemaHospitalar.dto.AtualizacaoInternacaoRequest;
 import trabalhoPratico.sistemaHospitalar.dto.InternacaoRequest;
@@ -62,13 +64,18 @@ public class InternacaoController {
         return ResponseEntity.ok(internacaoService.atualizar(id, request));
     }
 
+    @GetMapping("/{id}/transferencias")
+    public ResponseEntity<List<TransferenciaResponse>> listarTransferencias(@PathVariable Long id) {
+        return ResponseEntity.ok(internacaoService.listarTransferencias(id));
+    }
+
     @PatchMapping("/{id}/quarto")
     public ResponseEntity<InternacaoResponse> transferir(
             @PathVariable Long id,
             @Valid @RequestBody TransferenciaInternacaoRequest request) {
         return ResponseEntity.ok(internacaoService.transferir(id, request));
     }
-    
+
     @PatchMapping("/{id}/alta")
     public ResponseEntity<InternacaoResponse> darAlta(
             @PathVariable Long id,
