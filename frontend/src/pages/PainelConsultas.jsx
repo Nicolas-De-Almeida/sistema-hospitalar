@@ -145,6 +145,10 @@ export default function GestaoConsultas() {
                     </table>
                 </div>
             </div>
+            <ModalAgendarConsulta 
+                isOpen={modalNovaConsulta} 
+                onClose={() => setModalNovaConsulta(false)} 
+                onSalvo={recarregar}/>
             <ModalRemarcarConsulta
                 key={consultaRemarcando?.id ?? 'nenhuma'}
                 isOpen={consultaRemarcando !== null}
