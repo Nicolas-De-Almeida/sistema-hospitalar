@@ -58,6 +58,7 @@ export const cadastrarQuarto = (dados) => post('/quartos', dados)
 export const atualizarQuarto = (id, dados) => put(`/quartos/${id}`, dados)
 export const listarQuartosDisponiveis = () => api('/quartos/disponiveis')
 export const excluirQuarto = (id) => api(`/quartos/${id}`, { method: 'DELETE' })
+export const listarTransferenciasInternacao = (id) => api(`/internacoes/${id}/transferencias`)
 
 // Profissionais da especialidade que podem atender na data e horário
 export const listarProfissionaisDisponiveis = (especialidade, data, horario) =>

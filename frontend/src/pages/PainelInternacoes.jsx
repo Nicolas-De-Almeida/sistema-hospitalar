@@ -1,8 +1,10 @@
 import { useState } from 'react'
-import { Plus, Pencil, LogOut, ArrowRightLeft } from 'lucide-react'
+import { Plus, Pencil, LogOut, ArrowRightLeft, History } from 'lucide-react'
 import ModalNovaInternacao from '../components/modals/ModalNovaInternacao'
 import ModalEditarInternacao from '../components/modals/ModalEditarInternacao'
 import ModalTransferirInternacao from '../components/modals/ModalTransferirInternacao'
+import ModalHistoricoQuartos from '../components/modals/ModalHistoricoQuartos'
+
 import LinhaEstado from '../components/LinhaEstado'
 import BadgeStatus from '../components/BadgeStatus'
 import BotaoAcao from '../components/BotaoAcao'
@@ -16,10 +18,15 @@ import { formatarData, dataHojeISO, estiloStatusInternacao } from '../utils/rotu
 
 export default function GestaoInternacoes() {
     const [modalNovaInternacao, setModalNovaInternacao] = useState(false)
+
     // Internação que está sendo editada (null = modal fechado)
     const [internacaoEditando, setInternacaoEditando] = useState(null)
+
     // Internação cujo paciente está sendo movido de quarto (null = modal fechado)
     const [internacaoMovendo, setInternacaoMovendo] = useState(null)
+
+    // Internação cujo histórico de quartos está aberto (null = modal fechado)
+    const [internacaoHistorico, setInternacaoHistorico] = useState(null)
 
     // Lista de internações
     const { dados: internacoes, carregando, erro, recarregar } = useDados(listarInternacoes)
@@ -95,6 +102,9 @@ export default function GestaoInternacoes() {
                                     <td className="py-3.5 px-5">
                                         <div className="flex items-center justify-end gap-2 text-slate-400">
                                             {/* Só dá para editar, mover e dar alta em internação ativa */}
+                                            <BotaoAcao titulo="Histórico de quartos" onClick={() => setInternacaoHistorico(internacao)}>
+                                                <History className="w-4 h-4" />
+                                            </BotaoAcao>
                                             {internacao.status === 'ATIVA' && (
                                                 <>
                                                     <BotaoAcao titulo="Editar internação" onClick={() => setInternacaoEditando(internacao)}>
@@ -132,6 +142,12 @@ export default function GestaoInternacoes() {
                 onClose={() => setInternacaoMovendo(null)}
                 onSalvo={recarregar}
                 internacao={internacaoMovendo}/>
+            
+            <ModalHistoricoQuartos
+                key={`historico-${internacaoHistorico?.id ?? 'nenhuma'}`}
+                isOpen={internacaoHistorico !== null}
+                onClose={() => setInternacaoHistorico(null)}
+                internacao={internacaoHistorico}/>
         </div>
     )
 }
