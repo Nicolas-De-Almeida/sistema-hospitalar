@@ -16,7 +16,9 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import trabalhoPratico.sistemaHospitalar.model.enums.TipoRegistro;
 import trabalhoPratico.sistemaHospitalar.dto.ConclusaoConsultaRequest;
 import trabalhoPratico.sistemaHospitalar.dto.ConsultaRequest;
 import trabalhoPratico.sistemaHospitalar.dto.ConsultaResponse;
@@ -117,6 +119,54 @@ class ConsultaServiceTest {
                 () -> service.agendar(requestRotina(data, LocalTime.of(9, 0))));
     }
 
+    @Test
+    void rejeitaConsultaQueSobrepoeOutraDe30Minutos() {
+        LocalDate data = proximaSegunda();
+        MedicoClinicoGeral medico = clinicoComExpediente();
+        new ConsultaRotina(paciente(), medico, data, LocalTime.of(9, 0), "Primeira consulta");
+        prepararAssociacoes(paciente(), medico);
+
+        assertThrows(RegraDeNegocioException.class,
+                () -> service.agendar(requestRotina(data, LocalTime.of(9, 15))));
+    }
+
+    @Test
+    void permiteConsultaLogoDepoisDe30Minutos() {
+        LocalDate data = proximaSegunda();
+        MedicoClinicoGeral medico = clinicoComExpediente();
+        new ConsultaRotina(paciente(), medico, data, LocalTime.of(9, 0), "Primeira consulta");
+        prepararAssociacoes(paciente(), medico);
+
+        ConsultaResponse resposta = service.agendar(requestRotina(data, LocalTime.of(9, 30)));
+
+        assertEquals(StatusConsulta.AGENDADA, resposta.status());
+    }
+
+    @Test
+    void concluirConsultaGravaObservacaoNoHistoricoMedico() {
+        Consulta consulta = consultaAgendada();
+        when(consultaRepository.findById(1L)).thenReturn(Optional.of(consulta));
+        service.confirmar(1L);
+        service.iniciar(1L);
+
+        service.concluir(1L, new ConclusaoConsultaRequest("Paciente avaliado e liberado."));
+
+        assertEquals(1, consulta.getRegistros().size());
+        assertEquals(TipoRegistro.EVOLUCAO, consulta.getRegistros().getFirst().getTipo());
+        assertEquals("Paciente avaliado e liberado.", consulta.getRegistros().getFirst().getDescricao());
+    }
+
+    @Test
+    void concluirSemObservacaoNaoCriaRegistro() {
+        Consulta consulta = consultaAgendada();
+        when(consultaRepository.findById(1L)).thenReturn(Optional.of(consulta));
+        service.confirmar(1L);
+        service.iniciar(1L);
+
+        service.concluir(1L, new ConclusaoConsultaRequest(null));
+
+        assertTrue(consulta.getRegistros().isEmpty());
+    }
     @Test
     void expedientePrecisaCobrirTodaDuracaoDaConsulta() {
         MedicoClinicoGeral medico = clinicoComExpediente();

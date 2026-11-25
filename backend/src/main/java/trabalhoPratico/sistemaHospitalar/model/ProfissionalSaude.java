@@ -64,7 +64,7 @@ public abstract class ProfissionalSaude extends Pessoa {
                 !a.mesmoQue(ignorar)
                         && a.ocupaAgenda()
                         && a.getData().equals(data)
-                        && a.getHorario().equals(hora));
+                        && Atendimento.horariosSeSobrepoem(a.getHorario(), hora));
     }
 
     // Método do diagrama: está ativo, tem expediente e não tem outro atendimento no horário

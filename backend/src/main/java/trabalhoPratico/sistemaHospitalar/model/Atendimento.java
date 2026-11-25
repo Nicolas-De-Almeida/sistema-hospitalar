@@ -2,6 +2,7 @@ package trabalhoPratico.sistemaHospitalar.model;
 
 import static trabalhoPratico.sistemaHospitalar.util.Validacao.exigir;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -21,6 +22,9 @@ import trabalhoPratico.sistemaHospitalar.model.enums.TipoRegistro;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "modalidade", length = 30)
 public abstract class Atendimento {
+
+    // Cada atendimento ocupa 30 minutos da agenda do profissional
+    public static final int DURACAO_MINUTOS = 30;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,7 +66,7 @@ public abstract class Atendimento {
         this.horario = exigir(horario, "horário");
     }
 
-    // ---------- O que cada modalidade precisa implementar ----------
+    //  O que cada modalidade precisa implementar
 
     // Cada modalidade tem suas próprias condições e deve lançar RegraDeNegocioException se algo não for válido.
     public abstract void validarCondicoes();
@@ -73,10 +77,10 @@ public abstract class Atendimento {
     // Texto da situação atual para mostrar na tela
     public abstract String getSituacao();
 
-    // ---------- Comportamento comum ----------
+    // Comportamento comum 
 
-    // Chamado por cada modalidade no FIM do seu construtor e valida tudo e só então liga o atendimento ao paciente e ao profissional.
-    // Resultado: um atendimento inválido nunca chega a existir.
+    // Chamado por cada modalidade no FIM do seu construtor e valida tudo 
+    // e só então liga o atendimento ao paciente e ao profissional, logo um atendimento inválido nunca chega a existir.
     protected final void finalizarCriacao() {
         validarAgendamento();
         paciente.adicionarAtendimento(this);
@@ -100,7 +104,8 @@ public abstract class Atendimento {
         }
         if (profissional.temConflitoEm(data, horario, this)) {
             throw new RegraDeNegocioException("O profissional " + profissional.getNome()
-                    + " já possui outro atendimento em " + data + " às " + horario + ".");
+                    + " já possui outro atendimento próximo de " + data + " às " + horario
+                    + " (cada atendimento ocupa " + DURACAO_MINUTOS + " minutos).");
         }
         if (exigirExpediente && !profissional.temExpedienteEm(data, horario)) {
             throw new RegraDeNegocioException("O profissional " + profissional.getNome()
@@ -108,7 +113,12 @@ public abstract class Atendimento {
         }
     }
 
-    // Dois atendimentos conflitam se são do mesmo profissional, no mesmo dia e horário
+    // Dois horários do mesmo dia se sobrepõem se começam com menos de 30 minutos de diferença
+    public static boolean horariosSeSobrepoem(LocalTime um, LocalTime outro) {
+        return Math.abs(Duration.between(um, outro).toMinutes()) < DURACAO_MINUTOS;
+    }
+
+    // Dois atendimentos conflitam se são do mesmo profissional, no mesmo dia e com horários sobrepostos
     public boolean conflitaCom(Atendimento outro) {
         return outro != null
                 && !mesmoQue(outro)
@@ -116,7 +126,7 @@ public abstract class Atendimento {
                 && profissional.equals(outro.profissional)
                 && ocupaAgenda() && outro.ocupaAgenda()
                 && data.equals(outro.data)
-                && horario.equals(outro.horario);
+                && horariosSeSobrepoem(horario, outro.horario);
     }
 
     protected final void alterarDataHorario(LocalDate novaData, LocalTime novoHorario) {
@@ -145,7 +155,7 @@ public abstract class Atendimento {
         return this == outro || (id != null && id.equals(outro.id));
     }
 
-    // ---------- Getters e Setters ----------
+    // Getters e Setters
 
     public Long getId() {
         return id;

@@ -8,6 +8,7 @@ import java.time.LocalTime;
 import jakarta.persistence.*;
 import trabalhoPratico.sistemaHospitalar.exception.RegraDeNegocioException;
 import trabalhoPratico.sistemaHospitalar.model.enums.StatusConsulta;
+import trabalhoPratico.sistemaHospitalar.model.enums.TipoRegistro;
 
 // Parte comum às duas consultas (rotina e especializada)
 // O status NÃO tem setter de propósito (só muda pelos métodos abaixo), que respeitam as transições permitidas em StatusConsulta.
@@ -46,6 +47,7 @@ public abstract class Consulta extends Atendimento {
         transitar(StatusConsulta.CONCLUIDA);
         if (observacoes != null && !observacoes.isBlank()) {
             setObservacoes(observacoes.trim());
+            registrar(TipoRegistro.EVOLUCAO, observacoes.trim());
         }
     }
 
