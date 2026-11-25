@@ -3,13 +3,15 @@ package trabalhoPratico.sistemaHospitalar.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import trabalhoPratico.sistemaHospitalar.dto.TransferenciaResponse;
 import trabalhoPratico.sistemaHospitalar.dto.AltaInternacaoRequest;
 import trabalhoPratico.sistemaHospitalar.dto.AtualizacaoInternacaoRequest;
 import trabalhoPratico.sistemaHospitalar.dto.InternacaoRequest;
 import trabalhoPratico.sistemaHospitalar.dto.InternacaoResponse;
+import trabalhoPratico.sistemaHospitalar.dto.TransferenciaInternacaoRequest;
+import trabalhoPratico.sistemaHospitalar.dto.TransferenciaResponse;
 import trabalhoPratico.sistemaHospitalar.exception.RecursoNaoEncontradoException;
 import trabalhoPratico.sistemaHospitalar.model.Internacao;
 import trabalhoPratico.sistemaHospitalar.model.Paciente;
@@ -20,7 +22,6 @@ import trabalhoPratico.sistemaHospitalar.repository.InternacaoRepository;
 import trabalhoPratico.sistemaHospitalar.repository.PacienteRepository;
 import trabalhoPratico.sistemaHospitalar.repository.ProfissionalSaudeRepository;
 import trabalhoPratico.sistemaHospitalar.repository.QuartoRepository;
-import trabalhoPratico.sistemaHospitalar.dto.TransferenciaInternacaoRequest;
 
 @Service
 public class InternacaoService {
@@ -41,7 +42,9 @@ public class InternacaoService {
         this.quartoRepository = quartoRepository;
     }
 
-    @Transactional
+    // READ_COMMITTED + trava no quarto: duas internações simultâneas no mesmo quarto
+    // são executadas uma de cada vez e a segunda enxerga a vaga já ocupada.
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public InternacaoResponse criar(InternacaoRequest request) {
         Paciente paciente = pacienteRepository.findById(request.pacienteId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException(
@@ -52,6 +55,7 @@ public class InternacaoService {
         Quarto quarto = quartoRepository.findById(request.quartoId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException(
                         "Quarto não encontrado: " + request.quartoId() + "."));
+        quartoRepository.bloquearParaAtualizacao(quarto.getId());
 
         Internacao internacao = new Internacao(
                 paciente,
@@ -92,16 +96,18 @@ public class InternacaoService {
                 .toList();
     }
 
-    @Transactional
+    // Mesma ideia do criar: trava o quarto de destino antes de conferir se há vaga
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public InternacaoResponse transferir(Long id, TransferenciaInternacaoRequest request) {
         Internacao internacao = buscarEntidade(id);
         Quarto novoQuarto = quartoRepository.findById(request.quartoId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException(
                         "Quarto não encontrado: " + request.quartoId() + "."));
+        quartoRepository.bloquearParaAtualizacao(novoQuarto.getId());
         internacao.transferirPara(novoQuarto);
         return InternacaoResponse.de(internacaoRepository.saveAndFlush(internacao));
     }
-    
+
     @Transactional
     public InternacaoResponse darAlta(Long id, AltaInternacaoRequest request) {
         Internacao internacao = buscarEntidade(id);
