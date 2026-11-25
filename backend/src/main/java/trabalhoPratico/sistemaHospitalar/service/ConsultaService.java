@@ -3,6 +3,7 @@ package trabalhoPratico.sistemaHospitalar.service;
 import java.util.List;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import trabalhoPratico.sistemaHospitalar.dto.ConclusaoConsultaRequest;
@@ -39,7 +40,8 @@ public class ConsultaService {
         this.profissionalRepository = profissionalRepository;
     }
 
-    @Transactional
+    // Não deixa marcar o mesmo horario com o mesmo médico ao mesmo tempo
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public ConsultaResponse agendar(ConsultaRequest request) {
         Paciente paciente = pacienteRepository.findById(request.pacienteId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException(
@@ -47,6 +49,7 @@ public class ConsultaService {
         ProfissionalSaude profissional = profissionalRepository.findById(request.profissionalId())
                 .orElseThrow(() -> new RecursoNaoEncontradoException(
                         "Profissional não encontrado: " + request.profissionalId() + "."));
+        profissionalRepository.bloquearParaAtualizacao(profissional.getId());
 
         Consulta consulta = switch (request.modalidade()) {
             case ROTINA -> criarConsultaRotina(request, paciente, profissional);
@@ -103,9 +106,13 @@ public class ConsultaService {
         return salvar(consulta);
     }
 
-    @Transactional
+    // Mesma ideia do agendar: trava o profissional antes de conferir o novo horário
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public ConsultaResponse remarcar(Long id, RemarcacaoConsultaRequest request) {
         Consulta consulta = buscarEntidade(id);
+        if (consulta.getProfissional() != null) {
+            profissionalRepository.bloquearParaAtualizacao(consulta.getProfissional().getId());
+        }
         consulta.remarcar(request.data(), request.horario());
         return salvar(consulta);
     }

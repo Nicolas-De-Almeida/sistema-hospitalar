@@ -76,7 +76,7 @@ export default function ModalRemarcarConsulta({ isOpen, onClose, onSalvo, consul
                         </div>
                         <div>
                             <label className={classeLabel}>Novo horário <span className="text-red-500">*</span></label>
-                            <input type="time" required value={form.horario} onChange={atualizar('horario')} className={classeInput}/>
+                            <input type="time" required step={1800} value={form.horario} onChange={atualizar('horario')} className={classeInput}/>
                         </div>
                     </div>
 

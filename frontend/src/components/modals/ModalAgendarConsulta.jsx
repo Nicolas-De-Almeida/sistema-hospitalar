@@ -159,7 +159,7 @@ export default function ModalAgendarConsulta({ isOpen, onClose, onSalvo, pacient
                         </div>
                         <div>
                             <label className={classeLabel}>Horário <span className="text-red-500">*</span></label>
-                            <input type="time" required value={form.horario} onChange={atualizarCriterio('horario')} className={classeInput}/>
+                            <input type="time" required step={1800} value={form.horario} onChange={atualizarCriterio('horario')} className={classeInput}/>
                         </div>
                     </div>
 
