@@ -9,7 +9,7 @@ import LinhaEstado from '../components/LinhaEstado'
 
 import { useDados } from '../hooks/useDados'
 import { listarConsultas, listarInternacoes, listarQuartos } from '../services/hospitalService'
-import { dataHojeISO, formatarHora } from '../utils/rotulos'
+import { dataHojeISO, formatarHora, quartosPorPaciente } from '../utils/rotulos'
 
 
 export default function PainelPrincipal() {
@@ -31,6 +31,8 @@ export default function PainelPrincipal() {
         .sort((a, b) => a.horario.localeCompare(b.horario))
     const consultasAbertas = consultasHoje.filter((c) => c.status === 'AGENDADA' || c.status === 'CONFIRMADA').length
     const consultasConcluidas = consultasHoje.filter((c) => c.status === 'CONCLUIDA').length
+
+    const quartoDoPaciente = quartosPorPaciente(internacoes.dados)
 
     // Internações ativas
     const internacoesAtivas = internacoes.dados.filter((i) => i.status === 'ATIVA').length
@@ -137,13 +139,14 @@ export default function PainelPrincipal() {
                         <tr className="text-xs text-slate-400 border-b border-slate-100">
                             <th className="py-2">Horário</th>
                             <th className="py-2">Paciente</th>
+                            <th className="py-2">Quarto</th>
                             <th className="py-2">Profissional</th>
                             <th className="py-2">Motivo</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
                         <LinhaEstado
-                            colunas={4}
+                            colunas={5}
                             carregando={consultas.carregando}
                             erro={consultas.erro}
                             quantidade={consultasHoje.length}
@@ -152,6 +155,9 @@ export default function PainelPrincipal() {
                             <tr key={consulta.id}>
                                 <td className="py-3 font-bold text-slate-800">{formatarHora(consulta.horario)}</td>
                                 <td className="py-3 font-semibold text-slate-800">{consulta.pacienteNome}</td>
+                                <td className="py-3 text-slate-600">
+                                    {quartoDoPaciente[consulta.pacienteId] ? `Quarto ${quartoDoPaciente[consulta.pacienteId]}` : '-'}
+                                </td>
                                 <td className="py-3 font-semibold text-slate-800">{consulta.profissionalNome}</td>
                                 <td className="py-3 text-slate-600">{consulta.motivo}</td>
                             </tr>

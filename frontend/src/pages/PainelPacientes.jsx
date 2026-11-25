@@ -9,9 +9,9 @@ import ModalConfirmarExclusao from '../components/modals/ModalConfirmarExclusao'
 import LinhaEstado from '../components/LinhaEstado'
 
 import { useDados } from '../hooks/useDados'
-import { listarPacientes, excluirPaciente } from '../services/hospitalService'
+import { listarPacientes, excluirPaciente, listarInternacoes } from '../services/hospitalService'
 import { getIniciais } from '../utils/primeiraLetraMaiuscula'
-import { formatarCpf } from '../utils/rotulos'
+import { formatarCpf, quartosPorPaciente } from '../utils/rotulos'
 
 
 export default function PainelPacientes() {
@@ -33,6 +33,9 @@ export default function PainelPacientes() {
 
     // Lista real de pacientes, vinda do back end
     const { dados: pacientes, carregando, erro, recarregar } = useDados(listarPacientes)
+
+    const internacoes = useDados(listarInternacoes)
+    const quartoDoPaciente = quartosPorPaciente(internacoes.dados)
 
     // Texto digitado na busca (nome ou CPF)
     const [busca, setBusca] = useState('')
@@ -111,12 +114,13 @@ export default function PainelPacientes() {
                                 <th className="py-3 px-5">CPF</th>
                                 <th className="py-3 px-5">TELEFONE</th>
                                 <th className="py-3 px-5">E-MAIL</th>
+                                <th className="py-3 px-5">QUARTO</th>
                                 <th className="py-3 px-5 text-right">AÇÕES</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-100">
                             <LinhaEstado
-                                colunas={5}
+                                colunas={6}
                                 carregando={carregando}
                                 erro={erro}
                                 quantidade={pacientesFiltrados.length}
@@ -141,6 +145,11 @@ export default function PainelPacientes() {
                                     </td>
                                     <td className="py-3.5 px-5 text-slate-600">
                                         {paciente.email}
+                                    </td>
+                                    <td className="py-3.5 px-5">
+                                        {quartoDoPaciente[paciente.id]
+                                            ? <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-800 font-bold text-xs px-2 py-1 rounded-md">Quarto {quartoDoPaciente[paciente.id]}</span>
+                                            : <span className="text-slate-300">-</span>}
                                     </td>
                                     <td className="py-3.5 px-5">
                                         <div className="flex items-center justify-end gap-2 text-slate-400">
@@ -179,7 +188,7 @@ export default function PainelPacientes() {
 
             <ModalAgendarConsulta isOpen={pacienteConsulta !== null} onClose={() => setPacienteConsulta(null)} paciente={pacienteConsulta} />
 
-            <ModalNovaInternacao isOpen={pacienteInternacao !== null} onClose={() => setPacienteInternacao(null)} paciente={pacienteInternacao} />
+            <ModalNovaInternacao isOpen={pacienteInternacao !== null} onClose={() => setPacienteInternacao(null)} onSalvo={internacoes.recarregar} paciente={pacienteInternacao} />
 
             <ModalConfirmarExclusao
                 isOpen={pacienteExcluindo !== null}
