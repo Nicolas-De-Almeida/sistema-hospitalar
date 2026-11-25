@@ -90,3 +90,40 @@ export const TIPOS_QUARTO = {
 export function rotuloTipoQuarto(valor) {
     return TIPOS_QUARTO[valor]?.texto ?? valor ?? '-'
 }
+
+//  Áreas do cirurgião
+export const AREAS_CIRURGICAS = [
+    'Cirurgia geral',
+    'Cirurgia cardíaca',
+    'Cirurgia vascular',
+    'Cirurgia torácica',
+    'Cirurgia ortopédica',
+    'Neurocirurgia',
+    'Cirurgia plástica',
+    'Cirurgia do aparelho digestivo',
+    'Cirurgia urológica',
+    'Cirurgia ginecológica',
+    'Cirurgia pediátrica',
+    'Cirurgia oftalmológica',
+    'Cirurgia de cabeça e pescoço',
+]
+
+// Dias da semana
+export const DIAS_SEMANA = [
+    ['MONDAY', 'Seg'],
+    ['TUESDAY', 'Ter'],
+    ['WEDNESDAY', 'Qua'],
+    ['THURSDAY', 'Qui'],
+    ['FRIDAY', 'Sex'],
+    ['SATURDAY', 'Sáb'],
+    ['SUNDAY', 'Dom'],
+]
+
+// Lista de internações só de quem está internado AGORA
+export function quartosPorPaciente(internacoes) {
+    const mapa = {}
+    for (const internacao of internacoes) {
+        if (internacao.status === 'ATIVA') mapa[internacao.pacienteId] = internacao.quartoNumero
+    }
+    return mapa
+}
