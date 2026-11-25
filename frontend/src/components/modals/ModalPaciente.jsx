@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { X } from 'lucide-react'
-
+import { UFS, buscarEnderecoPorCep, listarCidades } from '../../services/localidades'
 import { cadastrarPaciente, atualizarPaciente } from '../../services/hospitalService'
 import { mascararCpf, mascararTelefone, mascararCep } from '../../utils/mascaras'
 
@@ -38,6 +38,30 @@ export default function ModalPaciente({ isOpen, onClose, onSalvo, paciente = nul
     const [salvando, setSalvando] = useState(false)
     const [erro, setErro] = useState('')
 
+    // Cidades da UF escolhida (vêm do IBGE)
+    const [cidades, setCidades] = useState([])
+    const [carregandoCidades, setCarregandoCidades] = useState(false)
+    const [avisoCep, setAvisoCep] = useState('')
+    // Número da busca de CEP
+    const buscaCep = useRef(0)
+
+    // Sempre que a UF muda (e o modal está aberto), carrega as cidades dela
+    useEffect(() => {
+        if (!isOpen || !form.uf) {
+            setCidades([])
+            return
+        }
+
+        let cancelado = false
+        setCarregandoCidades(true)
+        listarCidades(form.uf)
+            .then((lista) => { if (!cancelado) setCidades(lista) })
+            .catch(() => { if (!cancelado) setCidades([]) }) // sem lista: o campo vira texto livre
+            .finally(() => { if (!cancelado) setCarregandoCidades(false) })
+
+        return () => { cancelado = true }
+    }, [isOpen, form.uf])
+
     if (!isOpen) return null;
 
     // Atualiza um campo, atualizar('nome') devolve a função que o onChange do input usa
@@ -46,10 +70,49 @@ export default function ModalPaciente({ isOpen, onClose, onSalvo, paciente = nul
     // Igual ao atualizar, mas passa o texto por uma máscara (CPF, telefone, CEP)
     const atualizarComMascara = (campo, mascara) => (e) => setForm({ ...form, [campo]: mascara(e.target.value) })
 
-    // Volta o formulário ao início (vazio ou com os dados do paciente) e fecha
+    // Trocar a UF à mão limpa a cidade (ela pertence ao estado anterior)
+    const trocarUf = (e) => setForm({ ...form, uf: e.target.value, cidade: '' })
+
+    // Ao completar os 8 números do CEP, busca rua, bairro, cidade e UF e preenche o formulário.
+    // O número e o complemento continuam por conta do usuário.
+    async function digitarCep(e) {
+        const cep = mascararCep(e.target.value)
+        setForm((atual) => ({ ...atual, cep }))
+        setAvisoCep('')
+        if (cep.replace(/\D/g, '').length !== 8) return
+
+        const numeroDaBusca = ++buscaCep.current
+        setAvisoCep('Buscando CEP...')
+        try {
+            const endereco = await buscarEnderecoPorCep(cep)
+            if (numeroDaBusca !== buscaCep.current) return // o usuário já mudou o CEP
+
+            if (endereco === null) {
+                setAvisoCep('CEP não encontrado. Preencha o endereço à mão.')
+                return
+            }
+            setAvisoCep('')
+            setForm((atual) => ({
+                ...atual,
+                logradouro: endereco.logradouro || atual.logradouro,
+                bairro: endereco.bairro || atual.bairro,
+                uf: endereco.uf || atual.uf,
+                cidade: endereco.cidade || atual.cidade,
+            }))
+        } catch {
+            if (numeroDaBusca === buscaCep.current) {
+                setAvisoCep('Não foi possível consultar o CEP agora. Preencha à mão.')
+            }
+        }
+    }
+
+    const opcoesCidade = form.cidade && !cidades.includes(form.cidade) ? [form.cidade, ...cidades] : cidades
+
     function fechar() {
+        buscaCep.current++
         setForm(formularioInicial(paciente))
         setErro('')
+        setAvisoCep('')
         onClose()
     }
 
@@ -161,7 +224,7 @@ export default function ModalPaciente({ isOpen, onClose, onSalvo, paciente = nul
                                 <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
                                     <div className="md:col-span-2">
                                         <label className="block text-xs font-semibold text-slate-700 mb-1">CEP</label>
-                                        <input type="text" inputMode="numeric" minLength={9} maxLength={9} value={form.cep} onChange={atualizarComMascara('cep', mascararCep)} placeholder="00000-000" className={classeInput}/>
+                                        <input type="text" inputMode="numeric" minLength={9} maxLength={9} value={form.cep} onChange={digitarCep} placeholder="00000-000" className={classeInput}/>
                                     </div>
                                     <div className="md:col-span-3">
                                         <label className="block text-xs font-semibold text-slate-700 mb-1">Logradouro <span className="text-red-500">*</span></label>
@@ -172,8 +235,9 @@ export default function ModalPaciente({ isOpen, onClose, onSalvo, paciente = nul
                                         <input type="text" value={form.numero} onChange={atualizar('numero')} placeholder="Nº" className={classeInput}/>
                                     </div>
                                 </div>
+                                {avisoCep && <p className="text-xs text-slate-400">{avisoCep}</p>}
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                     <div>
                                         <label className="block text-xs font-semibold text-slate-700 mb-1">Complemento</label>
                                         <input type="text" value={form.complemento} onChange={atualizar('complemento')} placeholder="Apto, bloco..." className={classeInput}/>
@@ -182,15 +246,27 @@ export default function ModalPaciente({ isOpen, onClose, onSalvo, paciente = nul
                                         <label className="block text-xs font-semibold text-slate-700 mb-1">Bairro</label>
                                         <input type="text" value={form.bairro} onChange={atualizar('bairro')} placeholder="Bairro" className={classeInput}/>
                                     </div>
-                                    <div>
-                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Cidade <span className="text-red-500">*</span></label>
-                                        <input type="text" required value={form.cidade} onChange={atualizar('cidade')} placeholder="Cidade" className={classeInput}/>
-                                    </div>
                                 </div>
 
-                                <div className="w-full md:w-1/3">
-                                    <label className="block text-xs font-semibold text-slate-700 mb-1">UF <span className="text-red-500">*</span></label>
-                                    <input type="text" required maxLength={2} value={form.uf} onChange={(e) => setForm({ ...form, uf: e.target.value.toUpperCase() })} placeholder="UF" className={classeInput}/>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    <div>
+                                        <label className="block text-xs font-semibold text-slate-700 mb-1">UF <span className="text-red-500">*</span></label>
+                                        <select required value={form.uf} onChange={trocarUf} className={classeInput}>
+                                            <option value="">Selecione...</option>
+                                            {UFS.map((uf) => <option key={uf} value={uf}>{uf}</option>)}
+                                        </select>
+                                    </div>
+                                    <div className="md:col-span-2">
+                                        <label className="block text-xs font-semibold text-slate-700 mb-1">Cidade <span className="text-red-500">*</span></label>
+                                        {opcoesCidade.length > 0 ? (
+                                            <select required value={form.cidade} onChange={atualizar('cidade')} className={classeInput}>
+                                                <option value="">Selecione...</option>
+                                                {opcoesCidade.map((cidade) => <option key={cidade} value={cidade}>{cidade}</option>)}
+                                            </select>
+                                        ) : (
+                                            <input type="text" required value={form.cidade} onChange={atualizar('cidade')} disabled={!form.uf} placeholder={!form.uf ? 'Escolha a UF primeiro' : carregandoCidades ? 'Carregando cidades...' : 'Cidade'} className={`${classeInput} disabled:bg-slate-50`}/>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
