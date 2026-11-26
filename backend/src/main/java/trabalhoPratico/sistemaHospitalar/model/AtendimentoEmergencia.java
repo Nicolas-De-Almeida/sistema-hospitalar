@@ -11,6 +11,7 @@ import jakarta.persistence.*;
 import trabalhoPratico.sistemaHospitalar.exception.RegraDeNegocioException;
 import trabalhoPratico.sistemaHospitalar.model.enums.PrioridadeEmergencia;
 import trabalhoPratico.sistemaHospitalar.model.enums.StatusEmergencia;
+import trabalhoPratico.sistemaHospitalar.model.enums.TipoRegistro;
 
 // Exige avaliação imediata. Nasce SEM profissional (aguardando avaliação) eo profissional é definido quando alguém inicia a avaliação.
 // Decisão: emergência fura a agenda, então não exige expediente e não "ocupa" horário
@@ -40,7 +41,7 @@ public class AtendimentoEmergencia extends Atendimento {
         finalizarCriacao();
     }
 
-    // ---------- Ações ----------
+    // Ações
 
     public void iniciarAvaliacao(ProfissionalSaude profissional) {
         exigir(profissional, "profissional responsável");
@@ -55,6 +56,7 @@ public class AtendimentoEmergencia extends Atendimento {
         transitar(StatusEmergencia.CONCLUIDO);
         if (observacoes != null && !observacoes.isBlank()) {
             setObservacoes(observacoes.trim());
+            registrar(TipoRegistro.EVOLUCAO, observacoes.trim());
         }
     }
 
@@ -66,7 +68,7 @@ public class AtendimentoEmergencia extends Atendimento {
         status = novo;
     }
 
-    // ---------- Identificar a situação (fila de espera) ----------
+    //  Identificar a situação (fila de espera)
 
     public boolean isAguardandoAvaliacao() {
         return status == StatusEmergencia.AGUARDANDO_AVALIACAO;
@@ -80,7 +82,7 @@ public class AtendimentoEmergencia extends Atendimento {
         return status == StatusEmergencia.CONCLUIDO;
     }
 
-    // ---------- Métodos abstratos ----------
+    // Métodos abstratos
 
     @Override
     public void validarCondicoes() {
@@ -100,7 +102,7 @@ public class AtendimentoEmergencia extends Atendimento {
         return status.getDescricao();
     }
 
-    // ---------- Getters e Setters ----------
+    // Getters e Setters
 
     public PrioridadeEmergencia getPrioridade() {
         return prioridade;

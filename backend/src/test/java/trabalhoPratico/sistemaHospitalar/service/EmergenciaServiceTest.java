@@ -27,6 +27,7 @@ import trabalhoPratico.sistemaHospitalar.model.MedicoClinicoGeral;
 import trabalhoPratico.sistemaHospitalar.model.Paciente;
 import trabalhoPratico.sistemaHospitalar.model.enums.PrioridadeEmergencia;
 import trabalhoPratico.sistemaHospitalar.model.enums.StatusEmergencia;
+import trabalhoPratico.sistemaHospitalar.model.enums.TipoRegistro;
 import trabalhoPratico.sistemaHospitalar.repository.AtendimentoEmergenciaRepository;
 import trabalhoPratico.sistemaHospitalar.repository.PacienteRepository;
 import trabalhoPratico.sistemaHospitalar.repository.ProfissionalSaudeRepository;
@@ -92,6 +93,20 @@ class EmergenciaServiceTest {
         assertEquals("Paciente estabilizado.", concluida.observacoes());
     }
 
+    @Test
+    void concluirComObservacoesGravaRegistroNoHistorico() {
+        AtendimentoEmergencia emergencia = emergenciaAguardando();
+        when(emergenciaRepository.findById(1L)).thenReturn(Optional.of(emergencia));
+        when(profissionalRepository.findById(2L)).thenReturn(Optional.of(medico()));
+
+        service.iniciarAvaliacao(1L, new InicioEmergenciaRequest(2L));
+        service.concluir(1L, new ConclusaoEmergenciaRequest("Paciente estabilizado."));
+
+        assertEquals(1, emergencia.getRegistros().size());
+        assertEquals(TipoRegistro.EVOLUCAO, emergencia.getRegistros().getFirst().getTipo());
+        assertEquals("Paciente estabilizado.", emergencia.getRegistros().getFirst().getDescricao());
+    }
+    
     @Test
     void rejeitaProfissionalInativo() {
         AtendimentoEmergencia emergencia = emergenciaAguardando();

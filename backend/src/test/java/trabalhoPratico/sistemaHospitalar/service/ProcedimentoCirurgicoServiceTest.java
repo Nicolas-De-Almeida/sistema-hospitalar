@@ -29,6 +29,7 @@ import trabalhoPratico.sistemaHospitalar.model.ProcedimentoCirurgico;
 import trabalhoPratico.sistemaHospitalar.model.ProfissionalSaude;
 import trabalhoPratico.sistemaHospitalar.model.enums.StatusProcedimento;
 import trabalhoPratico.sistemaHospitalar.model.enums.TipoCirurgia;
+import trabalhoPratico.sistemaHospitalar.model.enums.TipoRegistro;
 import trabalhoPratico.sistemaHospitalar.repository.PacienteRepository;
 import trabalhoPratico.sistemaHospitalar.repository.ProcedimentoCirurgicoRepository;
 import trabalhoPratico.sistemaHospitalar.repository.ProfissionalSaudeRepository;
@@ -103,6 +104,19 @@ class ProcedimentoCirurgicoServiceTest {
         assertEquals("Procedimento sem intercorrências.", concluido.observacoesPosOperatorias());
     }
 
+    @Test
+    void concluirComObservacoesGravaRegistroNoHistorico() {
+        ProcedimentoCirurgico procedimento = procedimentoAgendado();
+        when(procedimentoRepository.findById(1L)).thenReturn(Optional.of(procedimento));
+
+        service.iniciar(1L);
+        service.concluir(1L, new ConclusaoProcedimentoRequest("Sem intercorrências."));
+
+        assertEquals(1, procedimento.getRegistros().size());
+        assertEquals(TipoRegistro.OBSERVACAO, procedimento.getRegistros().getFirst().getTipo());
+        assertEquals("Sem intercorrências.", procedimento.getRegistros().getFirst().getDescricao());
+    }
+    
     @Test
     void cancelaProcedimentoAgendado() {
         ProcedimentoCirurgico procedimento = procedimentoAgendado();

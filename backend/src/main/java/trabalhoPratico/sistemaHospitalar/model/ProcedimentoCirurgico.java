@@ -11,6 +11,7 @@ import jakarta.persistence.*;
 import trabalhoPratico.sistemaHospitalar.exception.RegraDeNegocioException;
 import trabalhoPratico.sistemaHospitalar.model.enums.StatusProcedimento;
 import trabalhoPratico.sistemaHospitalar.model.enums.TipoCirurgia;
+import trabalhoPratico.sistemaHospitalar.model.enums.TipoRegistro;
 
 // Cirurgia agendada ou realizada. data/horario herdados do Atendimento = PREVISTOS;
 // dataEfetiva/horarioEfetivo = quando começou.
@@ -55,7 +56,7 @@ public class ProcedimentoCirurgico extends Atendimento {
         finalizarCriacao();
     }
 
-    // ---------- Ações ----------
+    //  Ações 
 
     // Começa a cirurgia: registra data/hora efetivas
     public void iniciar() {
@@ -74,6 +75,7 @@ public class ProcedimentoCirurgico extends Atendimento {
         transitar(StatusProcedimento.CONCLUIDO);
         if (observacoesPosOperatorias != null && !observacoesPosOperatorias.isBlank()) {
             this.observacoesPosOperatorias = observacoesPosOperatorias.trim();
+            registrar(TipoRegistro.OBSERVACAO, observacoesPosOperatorias.trim());
         }
     }
 
@@ -89,7 +91,7 @@ public class ProcedimentoCirurgico extends Atendimento {
         status = novo;
     }
 
-    // ---------- Métodos abstratos ----------
+    // Métodos abstratos
 
     @Override
     public void validarCondicoes() {
@@ -111,7 +113,7 @@ public class ProcedimentoCirurgico extends Atendimento {
         return status.getDescricao();
     }
 
-    // ---------- Getters e Setters ----------
+    // Getters e Setters
 
     public Cirurgiao getCirurgiao() {
         return (Cirurgiao) getProfissional();
