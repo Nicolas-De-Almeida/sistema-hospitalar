@@ -63,7 +63,6 @@ const STATUS_CONSULTA = {
     NAO_COMPARECEU: { texto: 'Não compareceu', cor: 'bg-slate-200 text-slate-700', bolinha: 'bg-slate-500' },
 }
 
-// Emergência 
 const STATUS_INTERNACAO = {
     ATIVA: { texto: 'Ativa', cor: 'bg-cyan-50 text-cyan-800', bolinha: 'bg-cyan-600' },
     ENCERRADA: { texto: 'Encerrada', cor: 'bg-slate-100 text-slate-500', bolinha: 'bg-slate-400' },
@@ -79,6 +78,7 @@ export function estiloStatusInternacao(status) {
     return STATUS_INTERNACAO[status] || { ...PADRAO, texto: status }
 }
 
+// Emergência 
 const STATUS_EMERGENCIA = {
     AGUARDANDO_AVALIACAO: { texto: 'Aguardando avaliação', cor: 'bg-amber-100 text-amber-700', bolinha: 'bg-amber-500' },
     EM_ATENDIMENTO: { texto: 'Em atendimento', cor: 'bg-blue-100 text-blue-700', bolinha: 'bg-blue-500' },
