@@ -1,6 +1,6 @@
 import LogoHospital from '../assets/img/logo-hospital.png'
 import { NavLink } from 'react-router-dom'
-import { Home, Users, Stethoscope, Calendar, Bed, LayoutGrid, Hospital } from 'lucide-react'
+import { Home, Users, Stethoscope, Calendar, Bed, LayoutGrid, Hospital, Siren, Scissors } from 'lucide-react'
 
 // Lista dos itens do menu. Para criar um novo item, basta adicionar uma linha aqui.
 const ITENS_MENU = [
@@ -10,6 +10,8 @@ const ITENS_MENU = [
     { para: '/consultas', texto: 'Consultas', Icone: Calendar },
     { para: '/internacoes', texto: 'Internações', Icone: Bed },
     { para: '/quartos', texto: 'Quartos', Icone: LayoutGrid },
+    { para: '/emergencias', texto: 'Emergências', Icone: Siren },
+    { para: '/procedimentos', texto: 'Cirurgias', Icone: Scissors },
 ]
 
 // Classe de cada item. O NavLink diz sozinho se a página dele está aberta (isActive).

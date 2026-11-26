@@ -63,6 +63,7 @@ const STATUS_CONSULTA = {
     NAO_COMPARECEU: { texto: 'Não compareceu', cor: 'bg-slate-200 text-slate-700', bolinha: 'bg-slate-500' },
 }
 
+// Emergência 
 const STATUS_INTERNACAO = {
     ATIVA: { texto: 'Ativa', cor: 'bg-cyan-50 text-cyan-800', bolinha: 'bg-cyan-600' },
     ENCERRADA: { texto: 'Encerrada', cor: 'bg-slate-100 text-slate-500', bolinha: 'bg-slate-400' },
@@ -78,6 +79,43 @@ export function estiloStatusInternacao(status) {
     return STATUS_INTERNACAO[status] || { ...PADRAO, texto: status }
 }
 
+const STATUS_EMERGENCIA = {
+    AGUARDANDO_AVALIACAO: { texto: 'Aguardando avaliação', cor: 'bg-amber-100 text-amber-700', bolinha: 'bg-amber-500' },
+    EM_ATENDIMENTO: { texto: 'Em atendimento', cor: 'bg-blue-100 text-blue-700', bolinha: 'bg-blue-500' },
+    CONCLUIDO: { texto: 'Concluído', cor: 'bg-emerald-100 text-emerald-700', bolinha: 'bg-emerald-500' },
+}
+
+const STATUS_PROCEDIMENTO = {
+    AGENDADO: { texto: 'Agendado', cor: 'bg-amber-100 text-amber-700', bolinha: 'bg-amber-500' },
+    EM_ANDAMENTO: { texto: 'Em andamento', cor: 'bg-blue-100 text-blue-700', bolinha: 'bg-blue-500' },
+    CONCLUIDO: { texto: 'Concluído', cor: 'bg-emerald-100 text-emerald-700', bolinha: 'bg-emerald-500' },
+    CANCELADO: { texto: 'Cancelado', cor: 'bg-red-100 text-red-700', bolinha: 'bg-red-500' },
+}
+
+export function estiloStatusEmergencia(status) {
+    return STATUS_EMERGENCIA[status] || { ...PADRAO, texto: status }
+}
+
+export function estiloStatusProcedimento(status) {
+    return STATUS_PROCEDIMENTO[status] || { ...PADRAO, texto: status }
+}
+
+export const PRIORIDADES_EMERGENCIA = {
+    CRITICA: { texto: 'Crítica', cor: 'bg-red-100 text-red-700', bolinha: 'bg-red-500' },
+    ALTA: { texto: 'Alta', cor: 'bg-orange-100 text-orange-700', bolinha: 'bg-orange-500' },
+    MODERADA: { texto: 'Moderada', cor: 'bg-yellow-100 text-yellow-700', bolinha: 'bg-yellow-500' },
+    BAIXA: { texto: 'Baixa', cor: 'bg-slate-100 text-slate-600', bolinha: 'bg-slate-400' },
+}
+
+export function estiloPrioridade(prioridade) {
+    return PRIORIDADES_EMERGENCIA[prioridade] || { ...PADRAO, texto: prioridade }
+}
+
+export const TIPOS_CIRURGIA = {
+    ELETIVA: 'Eletiva',
+    URGENCIA: 'Urgência',
+    EMERGENCIA: 'Emergência',
+}
 
 // Tipos de quarto (limite de leitos que o tipo permite)
 export const TIPOS_QUARTO = {

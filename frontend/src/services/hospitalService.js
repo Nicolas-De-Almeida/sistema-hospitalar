@@ -69,3 +69,17 @@ export const adicionarHorario = (profissionalId, dados) => post(`/profissionais/
 export const removerHorario = (profissionalId, horarioId) =>
     api(`/profissionais/${profissionalId}/disponibilidades/${horarioId}`, { method: 'DELETE' })
 
+// Emergências 
+export const listarEmergencias = () => api('/emergencias')
+export const registrarEmergencia = (dados) => post('/emergencias', dados)
+export const iniciarEmergencia = (id, profissionalId) => patch(`/emergencias/${id}/iniciar`, { profissionalId })
+export const reclassificarEmergencia = (id, prioridade) => patch(`/emergencias/${id}/prioridade`, { prioridade })
+export const concluirEmergencia = (id, observacoes) => patch(`/emergencias/${id}/concluir`, { observacoes })
+
+// Procedimentos cirúrgicos
+export const listarProcedimentos = () => api('/procedimentos')
+export const agendarProcedimento = (dados) => post('/procedimentos', dados)
+export const iniciarProcedimento = (id) => patch(`/procedimentos/${id}/iniciar`)
+export const concluirProcedimento = (id, observacoesPosOperatorias) =>
+    patch(`/procedimentos/${id}/concluir`, { observacoesPosOperatorias })
+export const cancelarProcedimento = (id) => patch(`/procedimentos/${id}/cancelar`)

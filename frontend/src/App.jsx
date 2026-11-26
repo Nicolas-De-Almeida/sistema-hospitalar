@@ -4,6 +4,8 @@ import PainelProfissionais from './pages/PainelProfissionais'
 import PainelConsultas from './pages/PainelConsultas'
 import PainelInternacoes from './pages/PainelInternacoes'
 import PainelQuartos from './pages/PainelQuartos'
+import PainelEmergencias from './pages/PainelEmergencias'
+import PainelProcedimentos from './pages/PainelProcedimentos'
 import Login from './pages/Login'
 import RotaProtegida from './components/RotaProtegida'
 
@@ -32,6 +34,8 @@ export default function App() {
                 <Route path="/consultas" element={<PainelConsultas/>} />
                 <Route path="/internacoes" element={<PainelInternacoes/>} />
                 <Route path="/quartos" element={<PainelQuartos/>} />
+                <Route path="/emergencias" element={<PainelEmergencias/>} />
+                <Route path="/procedimentos" element={<PainelProcedimentos/>} />
               </Routes>
             </Layout>
           </RotaProtegida>
